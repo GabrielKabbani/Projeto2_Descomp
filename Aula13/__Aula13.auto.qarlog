@@ -1,0 +1,24 @@
+Quartus Prime Archive log --	//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/__Aula13.auto.qarlog
+
+Archive:	//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/__Aula13.auto.qar
+Date:		Tue Oct 19 12:56:25 2021
+Quartus Prime		20.1.0 Build 711 06/05/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/db/Aula13.qpf
+//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.flow.rpt
+//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.map.rpt
+//Mac/Home/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.map.summary
+Aula13.qsf
+Aula13.vhd
+ROMMIPS.vhd
+ULASomaSub.vhd
+bancoReg.vhd
+bancoRegistradores.vhd
+c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
+registradorGenerico.vhd
+somaConstante.vhd
+	======= Total: 13 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

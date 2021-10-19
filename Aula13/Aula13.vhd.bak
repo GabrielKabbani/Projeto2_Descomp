@@ -1,0 +1,230 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Aula9 is
+  -- Total de bits das entradas e saidas
+  generic ( larguraDados : natural := 8;
+				larguraUm : natural := 1;
+				larguraAddressROM : natural := 9;
+				larguraInstrucaoJMP : natural := 13;
+				larguraRegDisplay : natural := 4;
+        simulacao : boolean := FALSE -- para gravar na placa, altere de TRUE para FALSE
+  );
+  port   (
+    CLOCK_50 : in std_logic;
+    LEDR  : out std_logic_vector(9 downto 0);
+	 HEX0  : out std_logic_vector(6 downto 0);
+	 HEX1  : out std_logic_vector(6 downto 0);
+	 HEX2  : out std_logic_vector(6 downto 0);
+	 HEX3  : out std_logic_vector(6 downto 0);
+	 HEX4  : out std_logic_vector(6 downto 0);
+	 HEX5  : out std_logic_vector(6 downto 0);
+	 KEY   : in std_logic_vector(3 downto 0);
+	 FPGA_RESET_N: in std_logic;
+	 SW: in std_logic_vector(9 downto 0)
+	 --ULA: out std_logic_vector(larguraDados-1 downto 0);
+	 --PC_sim: out std_logic_vector(larguraAddressROM-1 downto 0)
+  );
+end entity;
+
+
+architecture arquitetura of Aula9 is
+
+-- Sinais necessarios para conexao de componentes:
+  signal chavesX_ULA_B : std_logic_vector (larguraDados-1 downto 0);
+  signal chavesY_MUX_A : std_logic_vector (larguraDados-1 downto 0);
+  signal MUX_REG1 : std_logic_vector (larguraDados-1 downto 0);
+  signal REG1_ULA_A : std_logic_vector (larguraDados-1 downto 0);
+  signal Saida_ULA : std_logic_vector (larguraDados-1 downto 0);
+  signal EntradaAMux1 : std_logic_vector (larguraDados-1 downto 0);
+  signal Sinais_Controle : std_logic_vector (9 downto 0);
+  signal Saida_Decoder3x8 : std_logic_vector (7 downto 0);
+  signal Saida_Decoder3x8_LED : std_logic_vector (7 downto 0);
+  signal Saida_Reg_HEX5 : std_logic_vector (3 downto 0);
+  signal Saida_Reg_HEX4 : std_logic_vector (3 downto 0);
+  signal Saida_Reg_HEX3 : std_logic_vector (3 downto 0);
+  signal Saida_Reg_HEX2 : std_logic_vector (3 downto 0);
+  signal Saida_Reg_HEX1 : std_logic_vector (3 downto 0);
+  signal Saida_Reg_HEX0 : std_logic_vector (3 downto 0);
+  signal ROM_instru : std_logic_vector (larguraInstrucaoJMP-1 downto 0);
+  signal saidaROM : std_logic_vector (12 downto 0);
+  signal PC_out : std_logic_vector (8 downto 0);
+  signal SaidaSOM : std_logic_vector (8 downto 0);
+  signal SaidaREG_END_RET : std_logic_vector (8 downto 0);
+  signal Chave_Operacao_ULA : std_logic;
+  signal RES_FLAG_IG : std_logic;
+  signal CLK : std_logic;
+  signal flagZero : std_logic;
+  signal ENTRADA_THREESTATE_KEY0 : std_logic;
+  signal ENTRADA_THREESTATE_KEY1 : std_logic;
+  signal CLK_FF_KEY0 : std_logic;
+  signal CLK_FF_KEY1 : std_logic;
+  signal end511 : std_logic;
+  signal end510 : std_logic;
+  signal SAIDA_RAM : std_logic_vector (7 downto 0);
+  signal SAIDA_MUX2 : std_logic_vector (larguraAddressROM-1 downto 0);
+	alias WRITE_MEM : std_logic is Sinais_Controle(0);
+	alias READ_MEM : std_logic is Sinais_Controle(1);
+	alias HAB_FLAG_IG : std_logic is Sinais_Controle(2);
+	alias Operacao_ULA : std_logic_vector (1 downto 0) is Sinais_Controle(4 downto 3);
+	alias HABILITA_A : std_logic is Sinais_Controle(5);
+	alias SelMUX : std_logic is Sinais_Controle(6);
+	alias SEL_MUX_PC : std_logic_vector (1 downto 0) is Sinais_Controle(8 downto 7);
+	alias HAB_ESCR_RET : std_logic is Sinais_Controle(9);
+
+  
+
+
+begin
+
+-- Instanciando os componentes:
+
+-- clock configurando como borda de subida
+CLK <= CLOCK_50;
+
+detectorSub0: work.edgeDetector(bordaSubida)
+        port map (clk => CLOCK_50, entrada => (not KEY(0)), saida => CLK_FF_KEY0); 
+		  
+detectorSub1: work.edgeDetector(bordaSubida)
+        port map (clk => CLOCK_50, entrada => (not KEY(1)), saida => CLK_FF_KEY1); 
+
+-- CPU foi encapsulada com todos seus componentes
+CPU : entity work.CPU
+          port map (CLOCK_50 => CLK, ROM_ADDRESS => PC_out, Instruction_IN => ROM_instru, Data_Address => saidaROM(8 downto 0), Data_OUT => REG1_ULA_A, Data_IN => EntradaAMux1, Rd => WRITE_MEM, Wr => READ_MEM);
+
+-- ROM com instrucoes atualizadas
+ROM1 : entity work.memoriaROM   generic map (dataWidth => 13, addrWidth => 9)
+          port map (Endereco => PC_out, Dado => ROM_instru);
+			 
+RAM : entity work.memoriaRAM   generic map (dataWidth => larguraDados, addrWidth => 6)
+          port map (addr => saidaROM(5 downto 0), we => WRITE_MEM, re=> READ_MEM, habilita => Saida_Decoder3x8(0), clk => clk, dado_in => REG1_ULA_A, dado_out => EntradaAMux1);
+
+			 
+flipflop_key0 : entity work.flipflop
+          port map (DIN => '1', DOUT => ENTRADA_THREESTATE_KEY0, ENABLE => '1', CLK => CLK_FF_KEY0, RST => end511);
+flipflop_key1 : entity work.flipflop
+          port map (DIN => '1', DOUT => ENTRADA_THREESTATE_KEY1, ENABLE => '1', CLK => CLK_FF_KEY1, RST => end510);
+					  
+-- O port map completo do Acumulador e dos three states.
+
+
+flipflop_LED8 : entity work.flipflop   
+          port map (DIN => REG1_ULA_A(0), DOUT => LEDR(8), ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(1) and WRITE_MEM and not(saidaROM(5))), CLK => CLK, RST => '0');
+	
+flipflop_LED9 : entity work.flipflop  
+          port map (DIN => REG1_ULA_A(0), DOUT => LEDR(9), ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(2) and WRITE_MEM and not(saidaROM(5))), CLK => CLK, RST => '0');
+			 
+ThreeS_KEY0 : entity work.three_state 
+          port map (DATA => ENTRADA_THREESTATE_KEY0, OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and saidaROM(5) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(0)));
+			 
+ThreeS_KEY1 : entity work.three_state 
+          port map (DATA => ENTRADA_THREESTATE_KEY1, OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and saidaROM(5) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(1)));
+			 
+ThreeS_KEY2 : entity work.three_state 
+          port map (DATA => KEY(2), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and saidaROM(5) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(2)));
+			 
+ThreeS_KEY3 : entity work.three_state 
+          port map (DATA => KEY(3), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and saidaROM(5) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(3)));
+			 
+ThreeS_FPGA_RESET : entity work.three_state 
+          port map (DATA => not(FPGA_RESET_N), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and saidaROM(5) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(4)));
+			 
+			 
+			 
+ThreeS_SW9 : entity work.three_state 
+          port map (DATA => SW(9), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and not(saidaROM(5)) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(2)));	
+			 
+			 
+			 
+ThreeS_SW8 : entity work.three_state 
+          port map (DATA => SW(8), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and not(saidaROM(5)) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(1)));	
+			 
+			 
+			 
+ThreeS_SW70 : entity work.three_state_8x8 
+          port map (DATA => SW(7 downto 0), OUTPUT => EntradaAMux1, ENABLE => (READ_MEM and not(saidaROM(5)) and Saida_Decoder3x8(5) and Saida_Decoder3x8_LED(0)));	
+			 
+			 
+			 
+			 			 
+REG_LEDR : entity work.registradorGenerico   generic map (larguraDados => larguraDados)
+          port map (DIN => REG1_ULA_A, DOUT => LEDR(7 downto 0), ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(0) and WRITE_MEM and not(saidaROM(5))), CLK => CLK, RST => '0');
+			
+			
+
+--Registradores displays de sete segmentos:
+
+REG_HEX5 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX5, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(5) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+			 
+REG_HEX4 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX4, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(4) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+			 
+REG_HEX3 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX3, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(3) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+			 
+REG_HEX2 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX2, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(2) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+			 
+REG_HEX1 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX1, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(1) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+			
+REG_HEX0 : entity work.registradorGenerico   generic map (larguraDados => larguraRegDisplay)
+          port map (DIN => REG1_ULA_A(3 downto 0), DOUT => Saida_Reg_HEX0, ENABLE => (Saida_Decoder3x8(4) and Saida_Decoder3x8_LED(0) and WRITE_MEM and (saidaROM(5))), CLK => CLK, RST => '0');
+
+SEVEN_SEG_HEX0 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX0,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX0);
+					  
+SEVEN_SEG_HEX1 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX1,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX1);
+					  
+SEVEN_SEG_HEX2 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX2,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX2);
+					  
+SEVEN_SEG_HEX3 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX3,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX3);
+					  
+SEVEN_SEG_HEX4 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX4,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX4);
+					  
+SEVEN_SEG_HEX5 :  entity work.conversorHex7Seg
+        port map(dadoHex => Saida_Reg_HEX5,
+                 apaga =>  '0',
+                 negativo => '0',
+                 overFlow =>  '0',
+                 saida7seg => HEX5);
+					  
+-- Portmap completo dos decoders
+DECODER3x8 : entity work.decoder3x8
+          port map (entrada => saidaROM(8 downto 6), saida => Saida_Decoder3x8); 
+			 
+DECODER3x8_LED : entity work.decoder3x8
+          port map (entrada => saidaROM(2 downto 0), saida => Saida_Decoder3x8_LED); 
+
+
+end511 <= saidaROM(8) and saidaROM(7) and saidaROM(6) and saidaROM(5) and saidaROM(4) and saidaROM(3) and saidaROM(2) and saidaROM(1) and saidaROM(0);
+end510 <= saidaROM(8) and saidaROM(7) and saidaROM(6) and saidaROM(5) and saidaROM(4) and saidaROM(3) and saidaROM(2) and saidaROM(1) and not(saidaROM(0));
+
+
+
+end architecture;
