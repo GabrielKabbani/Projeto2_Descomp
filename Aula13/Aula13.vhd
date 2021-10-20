@@ -67,8 +67,8 @@ Banco_Registradores: entity work.bancoReg
 	port map (
 		clk				=> CLK,
 		enderecoA 		=> ROM_instru(25 downto 21),
-		enderecoB 		=> ROM_instru(20 downto 16),
-		enderecoC 		=> ROM_instru(15 downto 11),
+		enderecoB 		=> ROM_instru(15 downto 11),
+		enderecoC 		=> ROM_instru(20 downto 16),
 		escreveC 		=> WR_Banco,
 		dadoEscritaC 	=> Saida_ULA,
 		saidaA 			=> entradaAULA,

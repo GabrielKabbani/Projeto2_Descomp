@@ -20,6 +20,7 @@ proc simTimestamp {} {
 after 2500 simTimestamp
 run -all
 quit -f
+
 </modelsim_script>
 <modelsim_script_timing>onerror {exit -code 1}
 vlib work
@@ -38,6 +39,7 @@ proc simTimestamp {} {
 after 2500 simTimestamp
 run -all
 quit -f
+
 </modelsim_script_timing>
 <hdl_lang>vhdl</hdl_lang>
 </simulation_settings>*/
@@ -773,7 +775,9 @@ TRANSITION_LIST("OP_ULA[0]")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL 0 FOR 1000.0;
+		LEVEL 0 FOR 30.0;
+		LEVEL 1 FOR 30.0;
+		LEVEL 0 FOR 940.0;
 	}
 }
 
@@ -782,7 +786,9 @@ TRANSITION_LIST("WR_Banco")
 	NODE
 	{
 		REPEAT = 1;
-		LEVEL 0 FOR 1000.0;
+		LEVEL 0 FOR 10.0;
+		LEVEL 1 FOR 70.0;
+		LEVEL 0 FOR 920.0;
 	}
 }
 
@@ -799,7 +805,7 @@ DISPLAY_LINE
 {
 	CHANNEL = "OP_ULA";
 	EXPAND_STATUS = COLLAPSED;
-	RADIX = Hexadecimal;
+	RADIX = Binary;
 	TREE_INDEX = 1;
 	TREE_LEVEL = 0;
 	CHILDREN = 2, 3;
@@ -809,7 +815,7 @@ DISPLAY_LINE
 {
 	CHANNEL = "OP_ULA[1]";
 	EXPAND_STATUS = COLLAPSED;
-	RADIX = Hexadecimal;
+	RADIX = Binary;
 	TREE_INDEX = 2;
 	TREE_LEVEL = 1;
 	PARENT = 1;
@@ -819,7 +825,7 @@ DISPLAY_LINE
 {
 	CHANNEL = "OP_ULA[0]";
 	EXPAND_STATUS = COLLAPSED;
-	RADIX = Hexadecimal;
+	RADIX = Binary;
 	TREE_INDEX = 3;
 	TREE_LEVEL = 1;
 	PARENT = 1;
