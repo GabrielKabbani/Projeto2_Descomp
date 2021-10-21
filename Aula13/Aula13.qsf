@@ -70,12 +70,6 @@ set_global_assignment -name VHDL_FILE components/ROMMIPS.vhd
 set_global_assignment -name VHDL_FILE components/registradorGenerico.vhd
 set_global_assignment -name VHDL_FILE components/bancoRegistradores.vhd
 set_global_assignment -name VHDL_FILE components/bancoReg.vhd
-set_global_assignment -name VHDL_FILE bancoRegistradores.vhd
-set_global_assignment -name VHDL_FILE ULASomaSub.vhd
-set_global_assignment -name VHDL_FILE somaConstante.vhd
-set_global_assignment -name VHDL_FILE registradorGenerico.vhd
-set_global_assignment -name VHDL_FILE bancoReg.vhd
-set_global_assignment -name VHDL_FILE ROMMIPS.vhd
 set_global_assignment -name VHDL_FILE Aula13.vhd
 set_global_assignment -name VECTOR_WAVEFORM_FILE Waveform.vwf
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
