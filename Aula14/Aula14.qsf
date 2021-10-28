@@ -64,3 +64,9 @@ set_global_assignment -name VHDL_FILE Aula14.vhd
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name VHDL_FILE components/RAMMIPS.vhd
+set_global_assignment -name VHDL_FILE components/estendeSinalGenerico.vhd
+set_global_assignment -name VHDL_FILE unidadeDeControle.vhd
+set_global_assignment -name VHDL_FILE components/shift_left.vhd
+set_global_assignment -name VHDL_FILE components/flipflopGenerico.vhd
+set_global_assignment -name VHDL_FILE components/muxGenerico2x1.vhd
+set_global_assignment -name VHDL_FILE components/somadorGenerico.vhd

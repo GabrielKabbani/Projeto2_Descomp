@@ -1,5 +1,5 @@
 Archive Project report for Aula13
-Tue Oct 19 12:56:25 2021
+Thu Oct 21 21:15:17 2021
 Quartus Prime Version 20.1.0 Build 711 06/05/2020 SJ Lite Edition
 
 
@@ -36,7 +36,7 @@ https://fpgasoftware.intel.com/eula.
 +----------------------------------------------------------------+
 ; Archive Project Summary                                        ;
 +------------------------+---------------------------------------+
-; Archive Project Status ; Successful - Tue Oct 19 12:56:25 2021 ;
+; Archive Project Status ; Successful - Thu Oct 21 21:15:17 2021 ;
 ; Revision Name          ; Aula13                                ;
 ; Top-level Entity Name  ; Aula13                                ;
 ; Family                 ; Cyclone V                             ;
@@ -50,29 +50,20 @@ Info: File Set 'Source control' contains:
     Info: Project source and settings files
     Info: Automatically detected source files
 Warning: Hierarchical Platform Designer systems and custom IP components(_hw.tcl and associated files) are not archived by the Quartus Archiver
-Critical Warning: Analysis & Elaboration was not run successfully.
-    Critical Warning: The 'Automatically detected source files' file subset will attempt to guess which files are needed. The archive file will likely be larger than required and may still be incomplete.
-Warning (225010): Analysis was not performed on the current project. The Quartus Prime software may not be able to automatically locate all project files.
-Info: Parsing: ULASomaSub.vhd
-Info: Parsing: somaConstante.vhd
-Info: Parsing: registradorGenerico.vhd
-Info: Parsing: bancoReg.vhd
-Info: Parsing: ROMMIPS.vhd
-Info: Parsing: Aula13.vhd
 Info: Archive will store files relative to the closest common parent directory
-Info (13213): Using common directory /Desktop/Insper/Design_de_computadores/Aula13/
+Info (13213): Using common directory C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/
 Info: ----------------------------------------------------------
 Info: ----------------------------------------------------------
-Info: Generated archive '/Desktop/Insper/Design_de_computadores/Aula13/Aula13.qar'
+Info: Generated archive 'C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.qar'
 Info: ----------------------------------------------------------
 Info: ----------------------------------------------------------
 Info: Generated report 'Aula13.archive.rpt'
-Error (23031): Evaluation of Tcl script c:/intelfpga_lite/20.1/quartus/common/tcl/apps/qpm/qar.tcl unsuccessful
-Error: Quartus Prime Shell was unsuccessful. 10 errors, 5 warnings
-    Error: Peak virtual memory: 4820 megabytes
-    Error: Processing ended: Tue Oct 19 12:56:25 2021
-    Error: Elapsed time: 00:00:23
-    Error: Total CPU time (on all processors): 00:00:18
+Info (23030): Evaluation of Tcl script c:/intelfpga_lite/20.1/quartus/common/tcl/apps/qpm/qar.tcl was successful
+Info: Quartus Prime Shell was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 4817 megabytes
+    Info: Processing ended: Thu Oct 21 21:15:17 2021
+    Info: Elapsed time: 00:00:01
+    Info: Total CPU time (on all processors): 00:00:01
 
 
 +--------------------------------------------------------------+
@@ -83,16 +74,14 @@ Error: Quartus Prime Shell was unsuccessful. 10 errors, 5 warnings
 ; Aula13.qpf                                                   ;
 ; Aula13.qsf                                                   ;
 ; Aula13.vhd                                                   ;
-; bancoReg.vhd                                                 ;
-; bancoRegistradores.vhd                                       ;
 ; c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf ;
-; output_files/Aula13.flow.rpt                                 ;
-; output_files/Aula13.map.rpt                                  ;
-; output_files/Aula13.map.summary                              ;
-; registradorGenerico.vhd                                      ;
-; ROMMIPS.vhd                                                  ;
-; somaConstante.vhd                                            ;
-; ULASomaSub.vhd                                               ;
+; components/bancoReg.vhd                                      ;
+; components/bancoRegistradores.vhd                            ;
+; components/registradorGenerico.vhd                           ;
+; components/ROMMIPS.vhd                                       ;
+; components/somaConstante.vhd                                 ;
+; components/ULASomaSub.vhd                                    ;
+; Waveform.vwf                                                 ;
 +--------------------------------------------------------------+
 
 

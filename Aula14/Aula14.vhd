@@ -26,6 +26,17 @@ architecture arquitetura of Aula14 is
 	signal entradaAULA 	: std_logic_vector(larguraDados-1 downto 0);
 	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0);
 	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0);
+	signal dadoLidoR2 	: std_logic_vector(larguraDados-1 downto 0);
+	signal saidaMemDados : std_logic_vector(larguraDados-1 downto 0);
+	signal saidaEstendeSinal : std_logic_vector(larguraDados-1 downto 0);
+	
+	signal habEscritaR3 : std_logic_vector(larguraDados-1 downto 0);
+	signal habEscritaMEM: std_logic_vector(largudaDados-1 downto 0);
+	signal habLeituraMEM: std_logic_vector(largudaDados-1 downto 0);
+	signal sinaisControle:std_logic_vector(larguraSinais-1 downto 0);
+
+	constant larguraSinais : natural := 5;
+	
 
 
 begin
@@ -40,7 +51,7 @@ INSTR <= ROM_instru;
 PC: entity work.registradorGenerico
 	generic map (larguraDados => 32)
    port map (
-		DIN 		=> saidaSOM, 
+		DIN 		=> , -- saida MUX_BRANCH 
 		DOUT 		=> PC_out, 
 		ENABLE 	=> '1', 
 		CLK 		=> CLK, 
@@ -71,38 +82,78 @@ Banco_Registradores: entity work.bancoReg
 		enderecoB 		=> ROM_instru(20 downto 16),
 		enderecoC 		=> ROM_instru(20 downto 16),
 		escreveC 		=> WR_Banco,
-		dadoEscritaC 	=> Saida_ULA,
+		dadoEscritaC 	=> saidaMemDados,
 		saidaA 			=> entradaAULA,
-		saidaB 			=> -- ligado na memoria de dados
+		saidaB 			=> dadoLidoR2
 	);
 
 -- extensor de sinal
+SIG_EXT: entity work.estendeSinalGenerico
+	generic map (larguraDadoEntrada => 16, larguraDadoSaida => 32)
+	port map(
+		estendeSinal_IN 	=> ROM_instru(15 downto 0),
+		estendeSinal_OUT	=> saidaEstendeSinal
+	);
 
-		  
+LEFT_SHIFT: entity work.left_shift
+	generic map(larguraDados => 32)
+	port map(
+		input 		=> saidaEstendeSinal,
+		output 		=> -- mux
+	);
+	
+-- somador
+SOMA_DESVIO: entity work.somadorGenerico
+	generic map(larguraDados => 32)
+	port map(
+		entradaA		=> saidaSOM, --
+		entradaB		=> , --
+		saida			=>
+	);
+
+	
+MUX_BRANCH: entity work.muxGenerico2x1
+	generic map(larguraDados => 32)
+	port map(
+		entradaA_MUX => , -- saida pc
+		entradaB_MUX => , -- saida somaConstante
+		seletor_MUX
+		saida_MUX
+	);
+
+
+
 ULA : entity work.ULASomaSub
 	generic map(larguraDados => larguraDados)
 	port map (
 		entradaA 	=> entradaAULA,
-		entradaB 	=> entradaBULA,
-		saida 		=> -- endereco memoria de dados,
+		entradaB 	=> saidaEstendeSinal,
+		saida 		=> Saida_ULA,
 		seletor 		=> OP_ULA
 		-- flag_zero  	=>   -- desnecessaria ate que seja implementada a operacao de "EQ"
 	);
 
 -- memoria dados
 MEMORIA_DADOS: entity work.RAMMIPS
-   generic map(dataWidth => 32, addrWidth => 32, memoryAddrWidth => 8)   -- 256 posicoes de 32 bits cada
-   port map (
-		clk       => CLK,
-		Endereco  => ,
-		Dado_in   => ,
-		Dado_out  => ,
-		we			 =>
-   );
+	generic map(dataWidth => 32, addrWidth => 32, memoryAddrWidth => 8)   -- 256 posicoes de 32 bits cada
+	port map (
+		clk       	=> CLK,
+		Endereco  	=> Saida_ULA,
+		Dado_in   	=> dadoLidoR2,
+		Dado_out  	=> saidaMemDados,
+		we			 	=>
+	);
 
 
--- unidades
+-- unidade de controle
+UC: entity work.unidadeDeControle
+	generic map(largura_opcode => 6, largura_control => larguraSinais)
+	port map(
+		op_code	 		=> ,
+		sinaisControle => 
+	);
 
 
 
+	
 end architecture;

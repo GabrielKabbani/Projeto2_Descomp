@@ -1,24 +1,22 @@
-Quartus Prime Archive log --	/Desktop/Insper/Design_de_computadores/Aula13/Aula13.qarlog
+Quartus Prime Archive log --	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.qarlog
 
-Archive:	/Desktop/Insper/Design_de_computadores/Aula13/Aula13.qar
-Date:		Tue Oct 19 12:56:25 2021
+Archive:	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.qar
+Date:		Thu Oct 21 21:15:17 2021
 Quartus Prime		20.1.0 Build 711 06/05/2020 SJ Lite Edition
 
 	=========== Files Selected: ===========
-/Desktop/Insper/Design_de_computadores/Aula13/Aula13.qpf
-/Desktop/Insper/Design_de_computadores/Aula13/Aula13.qsf
-/Desktop/Insper/Design_de_computadores/Aula13/Aula13.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/ROMMIPS.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/ULASomaSub.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/bancoReg.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/bancoRegistradores.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.flow.rpt
-/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.map.rpt
-/Desktop/Insper/Design_de_computadores/Aula13/output_files/Aula13.map.summary
-/Desktop/Insper/Design_de_computadores/Aula13/registradorGenerico.vhd
-/Desktop/Insper/Design_de_computadores/Aula13/somaConstante.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.qpf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.qsf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Aula13.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/Waveform.vwf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/ROMMIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/ULASomaSub.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/bancoReg.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/bancoRegistradores.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/registradorGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula13/components/somaConstante.vhd
 c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
-	======= Total: 13 files to archive =======
+	======= Total: 11 files to archive =======
 
 	================ Status: ===============
 All files archived successfully.
