@@ -1,0 +1,52 @@
+-- Copyright (C) 2017  Intel Corporation. All rights reserved.
+-- Your use of Intel Corporation's design tools, logic functions
+-- and other software and tools, and its AMPP partner logic
+-- functions, and any output files from any of the foregoing
+-- (including device programming or simulation files), and any
+-- associated documentation or information are expressly subject
+-- to the terms and conditions of the Intel Program License
+-- Subscription Agreement, the Intel Quartus Prime License Agreement,
+-- the Intel FPGA IP License Agreement, or other applicable license
+-- agreement, including, without limitation, that your use is for
+-- the sole purpose of programming logic devices manufactured by
+-- Intel and sold by Intel or its authorized distributors.  Please
+-- refer to the applicable agreement for further details.
+
+WIDTH=32;
+DEPTH=256;
+ADDRESS_RADIX=DEC;
+DATA_RADIX=BIN;
+
+CONTENT BEGIN
+--endereco      : code  
+    0           : 10101000001000100010000000000000;
+    1           : 01010100001000100010000000000000;
+    2           : 10101000001000100010000000000000;
+    3           : 01010100001000100010000000000000;
+    [4..5]      : 10101000001000100010000000000000;
+    6           : 01010100001000100010000000000000;
+    [7..8]      : 10101000001000100010000000000000;
+    9           : 01010100001000100010000000000000;
+    10          : 10101000001000100010000000000000;
+    11          : 01010100001000100010000000000000;
+    12          : 00000000000000000000000000000000;
+    13          : 00000000000000000000000000000000;
+    14          : 00000000000000000000000000000000;
+    15          : 00000000000000000000000000000000;
+    16          : 00000000000000000000000000000000;
+    17          : 00000000000000000000000000000000;
+    18          : 00000000000000000000000000000000;
+    19          : 00000000000000000000000000000000;
+    20          : 00000000000000000000000000000000;
+    [21..23]    : 00000000000000000000000000000000;
+    24          : 00000000000000000000000000000000;
+    25          : 00000000000000000000000000000000;
+    [26..28]    : 00000000000000000000000000000000;
+    29          : 00000000000000000000000000000000;
+    30          : 00000000000000000000000000000000;
+    [31..33]    : 00000000000000000000000000000000;
+    34          : 00000000000000000000000000000000;
+    [35..37]    : 00000000000000000000000000000000;
+    38          : 00000000000000000000000000000000;
+    [39..255]   : 00000000000000000000000000000000;
+END;
