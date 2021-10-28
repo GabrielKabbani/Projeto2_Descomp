@@ -24,8 +24,7 @@ architecture arquitetura of Aula14 is
 	signal ROM_instru 	: std_logic_vector(larguraDados-1 downto 0);
 	signal Saida_ULA 		: std_logic_vector(larguraDados-1 downto 0);
 	signal entradaAULA 	: std_logic_vector(larguraDados-1 downto 0);
-	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0);
-	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0);
+	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0); 
 	signal dadoLidoR2 	: std_logic_vector(larguraDados-1 downto 0);
 	signal saidaMemDados : std_logic_vector(larguraDados-1 downto 0);
 	signal saidaEstendeSinal : std_logic_vector(larguraDados-1 downto 0);
@@ -33,9 +32,18 @@ architecture arquitetura of Aula14 is
 	signal habEscritaR3 : std_logic_vector(larguraDados-1 downto 0);
 	signal habEscritaMEM: std_logic_vector(largudaDados-1 downto 0);
 	signal habLeituraMEM: std_logic_vector(largudaDados-1 downto 0);
-	signal sinaisControle:std_logic_vector(larguraSinais-1 downto 0);
-
-	constant larguraSinais : natural := 5;
+	signal leftShift_Somador: std_logic_vector(largudaDados-1 downto 0);
+	
+	signal somador_muxBranch	: std_logic_vector(largudaDados-1 downto 0);
+	signal branchEqual			: std_logic_vector(largudaDados-1 downto 0);
+	signal mux_PC					: std_logic_vector(largudaDados-1 downto 0);
+	signal ULA_flipflop			: std_logic_vector(largudaDados-1 downto 0);
+	
+	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
+	
+	signal enable_branchEqual 	: std_logic;
+	
+	constant larguraSinais : natural := 5 + 4;
 	
 
 
@@ -51,7 +59,7 @@ INSTR <= ROM_instru;
 PC: entity work.registradorGenerico
 	generic map (larguraDados => 32)
    port map (
-		DIN 		=> , -- saida MUX_BRANCH 
+		DIN 		=> mux_PC, -- saida MUX_BRANCH 
 		DOUT 		=> PC_out, 
 		ENABLE 	=> '1', 
 		CLK 		=> CLK, 
@@ -99,7 +107,7 @@ LEFT_SHIFT: entity work.left_shift
 	generic map(larguraDados => 32)
 	port map(
 		input 		=> saidaEstendeSinal,
-		output 		=> -- mux
+		output 		=> leftShift_Somador-- somador
 	);
 	
 -- somador
@@ -107,20 +115,19 @@ SOMA_DESVIO: entity work.somadorGenerico
 	generic map(larguraDados => 32)
 	port map(
 		entradaA		=> saidaSOM, --
-		entradaB		=> , --
-		saida			=>
+		entradaB		=> leftShift_Somador, --
+		saida			=>	somador_muxBranch
 	);
 
 	
 MUX_BRANCH: entity work.muxGenerico2x1
 	generic map(larguraDados => 32)
 	port map(
-		entradaA_MUX => , -- saida pc
-		entradaB_MUX => , -- saida somaConstante
-		seletor_MUX
-		saida_MUX
+		entradaA_MUX => saidaSOM, -- saida pc
+		entradaB_MUX => somador_muxBranch, -- saida somaConstante
+		seletor_MUX  => branchEqual, -- saida flipflop		
+		saida_MUX	 => mux_PC
 	);
-
 
 
 ULA : entity work.ULASomaSub
@@ -129,10 +136,19 @@ ULA : entity work.ULASomaSub
 		entradaA 	=> entradaAULA,
 		entradaB 	=> saidaEstendeSinal,
 		saida 		=> Saida_ULA,
-		seletor 		=> OP_ULA
-		-- flag_zero  	=>   -- desnecessaria ate que seja implementada a operacao de "EQ"
+		seletor 		=> OP_ULA,
+		flag_zero  	=> ULA_flipflop
 	);
 
+FLAG_EQ: entity work.flipflopGenerico
+	port map(
+		ENABLE	=> enable_branchEqual, -- sinal de controle
+		RST		=> '0',
+		CLK		=> CLK, 
+		DIN		=> ULA_flipflop, -- flag_zero ULA
+		DOUT		=> branchEqual-- seletor MUX_BRANCH
+	);
+	
 -- memoria dados
 MEMORIA_DADOS: entity work.RAMMIPS
 	generic map(dataWidth => 32, addrWidth => 32, memoryAddrWidth => 8)   -- 256 posicoes de 32 bits cada
@@ -141,7 +157,8 @@ MEMORIA_DADOS: entity work.RAMMIPS
 		Endereco  	=> Saida_ULA,
 		Dado_in   	=> dadoLidoR2,
 		Dado_out  	=> saidaMemDados,
-		we			 	=>
+		we			 	=> habEscritaMEM,
+		re				=> habLeituraMEM
 	);
 
 
@@ -149,11 +166,15 @@ MEMORIA_DADOS: entity work.RAMMIPS
 UC: entity work.unidadeDeControle
 	generic map(largura_opcode => 6, largura_control => larguraSinais)
 	port map(
-		op_code	 		=> ,
-		sinaisControle => 
+		op_code	 		=> ROM_instru(31 downto 26),
+		sinaisControle => sinaisControle
 	);
 
 
+habEscritaMEM			<= sinaisControle(0);
+habLeituraMEM			<= sinaisControle(1);
+enable_branchEqual 	<= sinaisControle(2);
+OP_ULA					<=	sinaisControle(6 downto 3);
+habEscritaR3			<= sinaisControle(7);
 
-	
 end architecture;

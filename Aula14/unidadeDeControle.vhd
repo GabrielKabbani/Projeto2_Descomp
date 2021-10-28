@@ -5,11 +5,11 @@ use ieee.numeric_std.all;  --Soma (esta biblioteca =ieee)
 entity unidadeDeControle is
     generic (
         largura_opcode : natural := 6;
-		  largura_control: natural := 3;
+		  largura_control: natural := 3
     );
     port (
         op_code			: in  STD_LOGIC_VECTOR((largura_opcode-1) downto 0);
-        sinaisControle	: out STD_LOGIC_VECTOR((largura_control-1) downto 0)
+        sinaisControle	: out STD_LOGIC_VECTOR((largura_control-1 + 3) downto 0)
     );
 end entity;
 
@@ -28,13 +28,18 @@ architecture comportamento of unidadeDeControle is
 	
 	begin
 	
-		write_enable_reg3 <= '1' when op_code = lw else '0';
-		write_enable_RAM  <= '1' when op_code = sw else '0';
-		read_enable_RAM   <= '1' when op_code = lw else '0';
-		operacao_ULA		<= '1' when op_code = 
+		write_enable_reg3 <= '1' 		when op_code = lw  else '0';
+		write_enable_RAM  <= '1' 		when op_code = sw  else '0';
+		read_enable_RAM   <= '1' 		when op_code = lw  else '0';
+		operacao_ULA		<= "0001" 	when op_code = beq else "0010";
+		branch_on_equal	<= '1' 		when op_code = beq else '0';
 		
-		sinaisControle(2) <= write_enable_reg3;
-		sinaisControle(1) <= read_enable_RAM;
+		
 		sinaisControle(0) <= write_enable_RAM;
+		sinaisControle(1) <= read_enable_RAM;
+		sinaisControle(2) <= branch_on_equal;
+		sinaisControle(6 downto 3) <= operacao_ULA;
+		sinaisControle(7) <= write_enable_reg3;
+
 	 
 end architecture;

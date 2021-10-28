@@ -1,0 +1,28 @@
+Quartus Prime Archive log --	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/Aula14.qarlog
+
+Archive:	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/Aula14.qar
+Date:		Wed Oct 27 23:59:43 2021
+Quartus Prime		20.1.0 Build 711 06/05/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/Aula14.qpf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/Aula14.qsf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/Aula14.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/RAMMIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/ROMMIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/ULASomaSub.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/bancoReg.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/bancoRegistradores.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/estendeSinalGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/flipflopGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/muxGenerico2x1.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/registradorGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/shift_left.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/somaConstante.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/components/somadorGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula14/unidadeDeControle.vhd
+c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
+	======= Total: 17 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

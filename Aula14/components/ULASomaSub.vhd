@@ -6,7 +6,7 @@ entity ULASomaSub is
     generic ( larguraDados : natural := 4 );
 	 port (
 		entradaA, entradaB	: in STD_LOGIC_VECTOR((larguraDados-1) downto 0);
-      seletor					: in STD_LOGIC_vector(1 downto 0);
+      seletor					: in STD_LOGIC_vector(3 downto 0);
       saida						: out STD_LOGIC_VECTOR((larguraDados-1) downto 0);
 		flag_zero 				: out STD_LOGIC
     );
@@ -27,8 +27,8 @@ architecture comportamento of ULASomaSub is
 		
 		
 		
-      resultado <= soma 		when (seletor = "00") else
-						 subtracao  when (seletor = "01") else
+      resultado <= soma 		when (seletor = "0000") else
+						 subtracao  when (seletor = "0001") else
 					    entradaB;
 		
 					
