@@ -30,21 +30,30 @@ architecture arquitetura of Aula15 is
 	signal leftShift_Somador	: std_logic_vector(larguraDados-1 downto 0);
 	signal somador_muxBranch	: std_logic_vector(larguraDados-1 downto 0);
 	signal mux_PC					: std_logic_vector(larguraDados-1 downto 0);
-	signal OP_ULA		:std_logic_vector(3 downto 0);
-	signal habEscritaR3 : std_logic;
-	signal habEscritaMEM: std_logic;
-	signal habLeituraMEM: std_logic;
+	signal OP_ULA		 	: std_logic_vector(3 downto 0);
+	signal habEscritaR3 	: std_logic;
+	signal MUX_REG			: std_logic_vector(larguraDados-1 downto 0);
+	
+	signal UC_MUX_REG		: std_logic_vector(larguraDados-1 downto 0);
 	
 	signal branchEqual			: std_logic;
 	signal ULA_flipflop			: std_logic;
 	
-	constant larguraSinais : natural := 5 + 4;
 	
 	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
 	
 	signal enable_branchEqual 	: std_logic;
 	
-
+	
+	-- sinais de controle (unidade de controle)
+	constant larguraSinais : natural := 5 + 4;
+	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
+	
+	signal UC_MUX_INSTR		: std_logic_vector(larguraDados-1 downto 0); -- sinal de controle do mux que seleciona as instrucoes
+	signal UC_WRITE_ENABLE	: std_logic;
+	signal UC_READ_ENABLE	: std_logic;
+	signal UC_ULA_CTRL		: std_logic_vector(3 downto 0);
+	signal UC_MUX_ULA			: std_logic;
 
 begin
 
@@ -80,14 +89,24 @@ ROM: entity work.ROMMIPS
 		Endereco => PC_out, 
 		Dado 		=> ROM_instru
 	);
-			 
+	
+-- mux que seleciona a intrucao tipo R ou tipo I
+MUX_INSTRUCOES: entity work.muxGenerico2x1
+	generic map(larguraDados => 32)
+	port map(
+		entradaA_MUX => ROM_instru(20 downto 16), 	-- Rt
+		entradaB_MUX => ROM_instru(15 downto 11), 	-- Rd
+		seletor_MUX  => UC_MUX_INSTR, 					-- seletor de instrucao R/I (unidade de controle)
+		saida_MUX	 => MUX_REG								-- enderecoC banco de registradores
+	);
+
 Banco_Registradores: entity work.bancoReg
 	generic map (larguraDados => 32, larguraEndBancoRegs => 5)
 	port map (
 		clk				=> CLK,
 		enderecoA 		=> ROM_instru(25 downto 21),
 		enderecoB 		=> ROM_instru(20 downto 16),
-		enderecoC 		=> ROM_instru(20 downto 16),
+		enderecoC 		=> MUX_REG, 
 		escreveC 		=> WR_Banco,
 		dadoEscritaC 	=> saidaMemDados,
 		saidaA 			=> entradaAULA,
@@ -128,6 +147,15 @@ MUX_BRANCH: entity work.muxGenerico2x1
 		saida_MUX	 => mux_PC
 	);
 
+-- mux que seleciona a entrada B da ULA
+MUX_ULA: entity work.muxGenerico2x1
+	generic map(larguraDados => 32)
+	port map(
+		entradaA_MUX => dadoLidoR2, 			-- Saida R2
+		entradaB_MUX => saidaEstendeSinal, 	-- extensor de sinal
+		seletor_MUX  => UC_MUX_ULA, 			-- seletedor Rt/Imediato (unidade de controle)
+		saida_MUX	 => ULA_B	-- entrada B da ULA
+	);
 
 ULA : entity work.ULASomaSub
 	generic map(larguraDados => larguraDados)
@@ -156,24 +184,35 @@ MEMORIA_DADOS: entity work.RAMMIPS
 		Endereco  	=> Saida_ULA,
 		Dado_in   	=> dadoLidoR2,
 		Dado_out  	=> saidaMemDados,
-		we			 	=> habEscritaMEM,
-		re				=> habLeituraMEM
+		we			 	=> UC_WRITE_ENABLE,
+		re				=> UC_READ_ENABLE
+	);
+	
+-- mux que seleciona a entrada de R3
+MUX_ULA: entity work.muxGenerico2x1
+	generic map(larguraDados => 32)
+	port map(
+		entradaA_MUX => , 	-- saida ULA
+		entradaB_MUX => , 	-- saida memoria de dados
+		seletor_MUX  => , 	-- seletor ULA/MEMORIA (unidade de controle)
+		saida_MUX	 => 		-- Dado Lido R3
 	);
 
 
 -- unidade de controle
-UC: entity work.unidadeDeControle
-	generic map(largura_opcode => 6, largura_control => larguraSinais)
-	port map(
-		op_code	 		=> ROM_instru(31 downto 26),
-		sinaisControle => sinaisControle
-	);
+--UC: entity work.unidadeDeControle
+--	generic map(largura_opcode => 6, largura_control => larguraSinais)
+--	port map(
+--		op_code	 		=> ROM_instru(31 downto 26),
+--		sinaisControle => sinaisControle
+--	);
 
 
-habEscritaMEM			<= sinaisControle(0);
-habLeituraMEM			<= sinaisControle(1);
+-- UC_MUX_ULA			<= sinaisControle(?);
+UC_WRITE_ENABLE		<= sinaisControle(0);
+UC_READ_ENABLE			<= sinaisControle(1);
 enable_branchEqual 	<= sinaisControle(2);
-OP_ULA					<=	sinaisControle(6 downto 3);
+UC_ULA_CTRL				<=	sinaisControle(6 downto 3);
 habEscritaR3			<= sinaisControle(7);
 
 end architecture;

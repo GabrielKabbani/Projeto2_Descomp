@@ -43,7 +43,6 @@ set_global_assignment -name TOP_LEVEL_ENTITY Aula15
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 20.1.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "15:07:32  OCTOBER 28, 2021"
 set_global_assignment -name LAST_QUARTUS_VERSION "20.1.0 Lite Edition"
-set_global_assignment -name VHDL_FILE components/unidadeDeControle.vhd
 set_global_assignment -name VHDL_FILE components/ULASomaSub.vhd
 set_global_assignment -name VHDL_FILE components/somadorGenerico.vhd
 set_global_assignment -name VHDL_FILE components/somaConstante.vhd

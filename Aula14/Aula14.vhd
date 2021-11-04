@@ -9,7 +9,6 @@ entity Aula14 is
 	);
 	port (
 		CLOCK_50 	: in std_logic;
-		OP_ULA 		: in std_logic_vector(1 downto 0);
 		WR_Banco 	: in std_logic;
 		INSTR 		: out std_logic_vector(larguraDados-1 downto 0)
 	);
@@ -29,21 +28,21 @@ architecture arquitetura of Aula14 is
 	signal saidaMemDados : std_logic_vector(larguraDados-1 downto 0);
 	signal saidaEstendeSinal : std_logic_vector(larguraDados-1 downto 0);
 	
-	signal habEscritaR3 : std_logic_vector(larguraDados-1 downto 0);
-	signal habEscritaMEM: std_logic_vector(largudaDados-1 downto 0);
-	signal habLeituraMEM: std_logic_vector(largudaDados-1 downto 0);
-	signal leftShift_Somador: std_logic_vector(largudaDados-1 downto 0);
+	signal habEscritaR3 		: std_logic;
+	signal habEscritaMEM		: std_logic;
+	signal habLeituraMEM		: std_logic;
+	signal leftShift_Somador: std_logic_vector(larguraDados-1 downto 0);
 	
-	signal somador_muxBranch	: std_logic_vector(largudaDados-1 downto 0);
-	signal branchEqual			: std_logic_vector(largudaDados-1 downto 0);
-	signal mux_PC					: std_logic_vector(largudaDados-1 downto 0);
-	signal ULA_flipflop			: std_logic_vector(largudaDados-1 downto 0);
+	signal somador_muxBranch	: std_logic_vector(larguraDados-1 downto 0);
+	signal branchEqual			: std_logic;
+	signal mux_PC					: std_logic_vector(larguraDados-1 downto 0);
+	signal ULA_flipflop			: std_logic;
+	signal OP_ULA 					: std_logic_vector(1 downto 0);
 	
+	constant larguraSinais : natural := 5 + 4;
 	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
 	
 	signal enable_branchEqual 	: std_logic;
-	
-	constant larguraSinais : natural := 5 + 4;
 	
 
 
@@ -103,7 +102,7 @@ SIG_EXT: entity work.estendeSinalGenerico
 		estendeSinal_OUT	=> saidaEstendeSinal
 	);
 
-LEFT_SHIFT: entity work.left_shift
+LEFT_SHIFT: entity work.shift_left
 	generic map(larguraDados => 32)
 	port map(
 		input 		=> saidaEstendeSinal,
