@@ -5,6 +5,8 @@ entity Aula15 is
 	generic (
 		larguraDados 	: natural := 32;
 		larguraUm 		: natural := 1;
+		larguraCinco 	: natural := 5;
+		larguraSinais  : natural := 5 + 4;
       simulacao 		: boolean := TRUE -- para gravar na placa, altere de TRUE para FALSE
 	);
 	port (
@@ -26,34 +28,35 @@ architecture arquitetura of Aula15 is
 	signal entradaBULA 	: std_logic_vector(larguraDados-1 downto 0); 
 	signal dadoLidoR2 	: std_logic_vector(larguraDados-1 downto 0);
 	signal saidaMemDados : std_logic_vector(larguraDados-1 downto 0);
+	signal ULA_B : std_logic_vector(larguraDados-1 downto 0);
 	signal saidaEstendeSinal 	: std_logic_vector(larguraDados-1 downto 0);
 	signal leftShift_Somador	: std_logic_vector(larguraDados-1 downto 0);
 	signal somador_muxBranch	: std_logic_vector(larguraDados-1 downto 0);
 	signal mux_PC					: std_logic_vector(larguraDados-1 downto 0);
 	signal OP_ULA		 	: std_logic_vector(3 downto 0);
 	signal habEscritaR3 	: std_logic;
-	signal MUX_REG			: std_logic_vector(larguraDados-1 downto 0);
+	signal MUX_REG			: std_logic_vector(larguraCinco-1 downto 0);
 	
-	signal UC_MUX_REG		: std_logic_vector(larguraDados-1 downto 0);
+	
 	
 	signal branchEqual			: std_logic;
 	signal ULA_flipflop			: std_logic;
 	
-	
-	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
+	signal Saida_Mux_R3					: std_logic_vector(larguraDados-1 downto 0);
 	
 	signal enable_branchEqual 	: std_logic;
 	
 	
 	-- sinais de controle (unidade de controle)
-	constant larguraSinais : natural := 5 + 4;
+
 	signal sinaisControle		: std_logic_vector(larguraSinais-1 downto 0);
 	
-	signal UC_MUX_INSTR		: std_logic_vector(larguraDados-1 downto 0); -- sinal de controle do mux que seleciona as instrucoes
+	signal UC_MUX_INSTR		: std_logic; -- sinal de controle do mux que seleciona as instrucoes
 	signal UC_WRITE_ENABLE	: std_logic;
 	signal UC_READ_ENABLE	: std_logic;
 	signal UC_ULA_CTRL		: std_logic_vector(3 downto 0);
 	signal UC_MUX_ULA			: std_logic;
+	signal UC_MUX_ULAMEM		: std_logic;
 
 begin
 
@@ -92,7 +95,7 @@ ROM: entity work.ROMMIPS
 	
 -- mux que seleciona a intrucao tipo R ou tipo I
 MUX_INSTRUCOES: entity work.muxGenerico2x1
-	generic map(larguraDados => 32)
+	generic map(larguraDados => 5)
 	port map(
 		entradaA_MUX => ROM_instru(20 downto 16), 	-- Rt
 		entradaB_MUX => ROM_instru(15 downto 11), 	-- Rd
@@ -108,7 +111,7 @@ Banco_Registradores: entity work.bancoReg
 		enderecoB 		=> ROM_instru(20 downto 16),
 		enderecoC 		=> MUX_REG, 
 		escreveC 		=> WR_Banco,
-		dadoEscritaC 	=> saidaMemDados,
+		dadoEscritaC 	=> Saida_Mux_R3,
 		saidaA 			=> entradaAULA,
 		saidaB 			=> dadoLidoR2
 	);
@@ -161,7 +164,7 @@ ULA : entity work.ULASomaSub
 	generic map(larguraDados => larguraDados)
 	port map (
 		entradaA 	=> entradaAULA,
-		entradaB 	=> saidaEstendeSinal,
+		entradaB 	=> ULA_B,
 		saida 		=> Saida_ULA,
 		seletor 		=> OP_ULA,
 		flag_zero  	=> ULA_flipflop
@@ -188,14 +191,14 @@ MEMORIA_DADOS: entity work.RAMMIPS
 		re				=> UC_READ_ENABLE
 	);
 	
--- mux que seleciona a entrada de R3
-MUX_ULA: entity work.muxGenerico2x1
+ --mux que seleciona a entrada de R3
+MUX_R3: entity work.muxGenerico2x1
 	generic map(larguraDados => 32)
 	port map(
-		entradaA_MUX => , 	-- saida ULA
-		entradaB_MUX => , 	-- saida memoria de dados
-		seletor_MUX  => , 	-- seletor ULA/MEMORIA (unidade de controle)
-		saida_MUX	 => 		-- Dado Lido R3
+		entradaA_MUX => Saida_ULA, 	-- saida ULA
+		entradaB_MUX => saidaMemDados, 	-- saida memoria de dados
+		seletor_MUX  => UC_MUX_ULAMEM, 	-- seletor ULA/MEMORIA (unidade de controle)
+		saida_MUX	 => Saida_Mux_R3		-- Dado Lido R3
 	);
 
 
