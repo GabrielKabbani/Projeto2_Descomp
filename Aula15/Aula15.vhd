@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 entity Aula15 is
 	generic (
 		larguraDados 	: natural := 32;
+		larguraLeftPC 	: natural := 26;
 		larguraUm 		: natural := 1;
 		larguraCinco 	: natural := 5;
 		larguraSinais  : natural := 5 + 4;
@@ -31,13 +32,15 @@ architecture arquitetura of Aula15 is
 	signal ULA_B : std_logic_vector(larguraDados-1 downto 0);
 	signal saidaEstendeSinal 	: std_logic_vector(larguraDados-1 downto 0);
 	signal leftShift_Somador	: std_logic_vector(larguraDados-1 downto 0);
+	signal leftShift_PC	: std_logic_vector(larguraLeftPC-1 downto 0);
 	signal somador_muxBranch	: std_logic_vector(larguraDados-1 downto 0);
 	signal mux_PC					: std_logic_vector(larguraDados-1 downto 0);
+	signal proxPC					: std_logic_vector(larguraDados-1 downto 0);
 	signal OP_ULA		 	: std_logic_vector(3 downto 0);
 	signal habEscritaR3 	: std_logic;
 	signal MUX_REG			: std_logic_vector(larguraCinco-1 downto 0);
 	
-	
+	signal zeros : std_logic_vector(larguraUm downto 0);
 	
 	signal branchEqual			: std_logic;
 	signal ULA_flipflop			: std_logic;
@@ -57,6 +60,8 @@ architecture arquitetura of Aula15 is
 	signal UC_ULA_CTRL		: std_logic_vector(3 downto 0);
 	signal UC_MUX_ULA			: std_logic;
 	signal UC_MUX_ULAMEM		: std_logic;
+	signal UC_selMuxPC		: std_logic;
+	
 
 begin
 
@@ -70,7 +75,7 @@ INSTR <= ROM_instru;
 PC: entity work.registradorGenerico
 	generic map (larguraDados => 32)
    port map (
-		DIN 		=> mux_PC, -- saida MUX_BRANCH 
+		DIN 		=> proxPC, -- saida MUX_PC 
 		DOUT 		=> PC_out, 
 		ENABLE 	=> '1', 
 		CLK 		=> CLK, 
@@ -129,6 +134,25 @@ LEFT_SHIFT: entity work.shift_left
 	port map(
 		input 		=> saidaEstendeSinal,
 		output 		=> leftShift_Somador-- somador
+	);
+	
+	
+LEFT_SHIFT_PC: entity work.shift_left
+	generic map(larguraDados => 26)
+	port map(
+		input 		=> ROM_instru(25 downto 0),
+		output 		=> leftShift_PC
+	);
+	
+MUX_PROX_PC: entity work.muxGenerico2x1
+	generic map(larguraDados => 32)
+	port map(
+		entradaA_MUX => mux_PC, 	
+		entradaB_MUX(31 downto 28) => saidaSOM(31 downto 28),
+		entradaB_MUX(27 downto 2) =>	leftShift_PC(25 downto 0),
+		entradaB_MUX(1 downto 0) =>	b"00",
+		seletor_MUX  => UC_selMuxPC, 					
+		saida_MUX	 => proxPC								
 	);
 	
 -- somador

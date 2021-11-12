@@ -4,11 +4,11 @@ USE ieee.numeric_std.ALL; -- Biblioteca IEEE para funções aritméticas
 
 ENTITY fullAdder IS
 	PORT (
-		A : STD_LOGIC;
-		B : STD_LOGIC;
-		C_in : STD_LOGIC;
-		C_out : STD_LOGIC;
-		S : STD_LOGIC
+		A : IN STD_LOGIC;
+		B : IN STD_LOGIC;
+		C_in : IN STD_LOGIC;
+		C_out : OUT STD_LOGIC;
+		S : OUT STD_LOGIC
 	);
 END ENTITY;
 

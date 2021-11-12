@@ -19,7 +19,7 @@ architecture comportamento of shift_left is
 
 begin
 
-  output <= input(29 DOWNTO 0) & "00";
+  output <= input(larguraDados-3 DOWNTO 0) & "00";
   
 
 end architecture;

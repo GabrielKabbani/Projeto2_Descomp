@@ -18,6 +18,9 @@ ENTITY ULA_bit_overflow IS
 	);
 END ENTITY;
 
+
+
+ARCHITECTURE comportamento OF ULA_bit_overflow IS
 SIGNAL saida_inv_B : STD_LOGIC;
 SIGNAL saida_full_adder : STD_LOGIC;
 SIGNAL S0 : STD_LOGIC;
@@ -25,8 +28,6 @@ SIGNAL S1 : STD_LOGIC;
 SIGNAL S2 : STD_LOGIC;
 SIGNAL S3 : STD_LOGIC;
 SIGNAL C_out : STD_LOGIC;
-
-ARCHITECTURE comportamento OF ULA_bit_overflow IS
 BEGIN
 	MUX_INV_B : ENTITY work.muxGenerico2x1
 		GENERIC MAP(larguraDados => 1)
