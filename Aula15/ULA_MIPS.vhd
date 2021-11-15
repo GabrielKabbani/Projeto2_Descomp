@@ -6,17 +6,22 @@ ENTITY ULA_MIPS IS
 	GENERIC (larguraDados : NATURAL := 4);
 	PORT (
 		entradaA, entradaB : IN STD_LOGIC_VECTOR((larguraDados - 1) DOWNTO 0);
-		seletor : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		inv_B : IN STD_LOGIC;
+		operacao : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 		saida : OUT STD_LOGIC_VECTOR((larguraDados - 1) DOWNTO 0);
 		flag_zero : OUT STD_LOGIC
 	);
 END ENTITY;
 
+ARCHITECTURE comportamento OF ULA_MIPS IS
+
+
 SIGNAL C_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL overflow_slt : STD_LOGIC;
 
-ARCHITECTURE comportamento OF ULA_MIPS IS
+SIGNAL inv_B : STD_LOGIC := operacao(2);
+SIGNAL seletor : STD_LOGIC_VECTOR(1 DOWNTO 0) := operacao(1 DOWNTO 0);
+
+BEGIN
 
 	BIT00 : ENTITY work.ULA_bit
 		PORT MAP(
