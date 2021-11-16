@@ -13,15 +13,25 @@ ENTITY ULA_MIPS IS
 END ENTITY;
 
 ARCHITECTURE comportamento OF ULA_MIPS IS
+	SIGNAL C_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
+	SIGNAL overflow_slt : STD_LOGIC;
 
-
-SIGNAL C_OUT : STD_LOGIC_VECTOR(31 DOWNTO 0);
-SIGNAL overflow_slt : STD_LOGIC;
-
-SIGNAL inv_B : STD_LOGIC := operacao(2);
-SIGNAL seletor : STD_LOGIC_VECTOR(1 DOWNTO 0) := operacao(1 DOWNTO 0);
+	SIGNAL inv_B : STD_LOGIC;
+	SIGNAL seletor : STD_LOGIC_VECTOR(1 DOWNTO 0);
 
 BEGIN
+
+	inv_B <= operacao(2);
+	seletor <= operacao(1 DOWNTO 0);
+	flag_zero <=
+		NOT(saida(0)) AND NOT(saida(1)) AND NOT(saida(2)) AND NOT(saida(3)) AND
+		NOT(saida(4)) AND NOT(saida(5)) AND NOT(saida(6)) AND NOT(saida(7)) AND
+		NOT(saida(8)) AND NOT(saida(9)) AND NOT(saida(10)) AND NOT(saida(11)) AND
+		NOT(saida(12)) AND NOT(saida(13)) AND NOT(saida(14)) AND NOT(saida(15)) AND
+		NOT(saida(16)) AND NOT(saida(17)) AND NOT(saida(18)) AND NOT(saida(19)) AND
+		NOT(saida(20)) AND NOT(saida(21)) AND NOT(saida(22)) AND NOT(saida(23)) AND
+		NOT(saida(24)) AND NOT(saida(25)) AND NOT(saida(26)) AND NOT(saida(27)) AND
+		NOT(saida(28)) AND NOT(saida(29)) AND NOT(saida(30)) AND NOT(saida(31));
 
 	BIT00 : ENTITY work.ULA_bit
 		PORT MAP(

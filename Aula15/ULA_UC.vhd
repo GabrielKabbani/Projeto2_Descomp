@@ -28,6 +28,7 @@ BEGIN
 		CTRL_SLT; -- WHEN funct = OP_SLT;
 
 	ctrl_LW_SW <= CTRL_ADD WHEN ULA_OP = "00";
+	
 	ctrlBEQ <= CTRL_SUB WHEN ULA_OP = "01";
 
 	ULA_CTRL <= tipoR WHEN ULA_OP = "10" ELSE

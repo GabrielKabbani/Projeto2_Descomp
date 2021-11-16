@@ -50,7 +50,7 @@ BEGIN
   MUX_Rt_Rd <= '1' WHEN op_code = OP_CODE_R ELSE
     '0';
 
-  MUX_BEq_JMP <= '1' WHEN op_code = OP_BEQ ELSE
+  MUX_BEq_JMP <= '1' WHEN (op_code = OP_JMP) ELSE
     '0';
   --
   sinais_CTRL(0) <= RE_MEM;

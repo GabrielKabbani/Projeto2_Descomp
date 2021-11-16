@@ -3,17 +3,25 @@ USE ieee.std_logic_1164.ALL;
 
 ENTITY Aula15 IS
 	GENERIC (
-		larguraDados : NATURAL := 32;
-		larguraUm : NATURAL := 1;
-		larguraCinco : NATURAL := 5;
-		larguraSinais : NATURAL := 10;
-		simulacao : BOOLEAN := TRUE -- para gravar na placa, altere de TRUE para FALSE
+		larguraDados 	: natural := 32;
+		larguraLeftPC 	: natural := 26;
+		larguraUm 		: natural := 1;
+		larguraCinco 	: natural := 5;
+		larguraSinais  : natural := 10;
+      simulacao 		: boolean := TRUE -- para gravar na placa, altere de TRUE para FALSE
 	);
 	PORT (
 		CLOCK_50 : IN STD_LOGIC;
-		WR_Banco : IN STD_LOGIC;
-		INSTR : OUT STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0)
+		SW				: in	std_logic_vector 	(9 downto 0);
+		HEX0			: out std_logic_vector	(6 downto 0);
+		HEX1			: out std_logic_vector	(6 downto 0);
+		HEX2			: out std_logic_vector	(6 downto 0);
+		HEX3			: out std_logic_vector	(6 downto 0);
+		HEX4			: out std_logic_vector	(6 downto 0);
+		HEX5			: out std_logic_vector	(6 downto 0);
+		LEDR			: out std_logic_vector	(9 downto 0)
 	);
+	
 END ENTITY;
 ARCHITECTURE arquitetura OF Aula15 IS
 
@@ -34,17 +42,20 @@ ARCHITECTURE arquitetura OF Aula15 IS
 	SIGNAL OP_ULA : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL habEscritaR3 : STD_LOGIC;
 	SIGNAL MUX_REG : STD_LOGIC_VECTOR(larguraCinco - 1 DOWNTO 0);
+	signal proxPC					: std_logic_vector(larguraDados-1 downto 0);
+	signal DATA_OUT					: std_logic_vector(larguraDados-1 downto 0);
 
+	signal leftShift_PC	: std_logic_vector(larguraLeftPC-1 downto 0);
 	SIGNAL branchEqual : STD_LOGIC;
 	SIGNAL ULA_flipflop : STD_LOGIC;
 
 	SIGNAL Saida_Mux_R3 : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 
 	SIGNAL enable_branchEqual : STD_LOGIC;
+	
+	
 	-- sinais de controle (unidade de controle)
-
 	SIGNAL sinaisControle : STD_LOGIC_VECTOR(larguraSinais - 1 DOWNTO 0);
-
 	SIGNAL UC_WRITE_ENABLE : STD_LOGIC;
 	SIGNAL UC_READ_ENABLE : STD_LOGIC;
 	SIGNAL UC_BEQ : STD_LOGIC;
@@ -64,11 +75,24 @@ BEGIN
 
 	-- clock configurando como borda de subida
 	CLK <= CLOCK_50;
-	INSTR <= ROM_instru;
+	-- INSTR <= ROM_instru;
+	
+	UC_WRITE_ENABLE <= sinaisControle(0);
+	UC_READ_ENABLE <= sinaisControle(1);
+	UC_BEQ <= sinaisControle(2);
+	UC_MUX_ULAMEM <= sinaisControle(3);
+	UC_OP_ULA <= sinaisControle(5 DOWNTO 4);
+	UC_MUX_RT_IMED <= sinaisControle(6);
+	UC_WE_REG <= sinaisControle(7);
+	UC_MUX_RT_RD <= sinaisControle(8);
+	UC_MUX_BEQ <= sinaisControle(9);
+
+	
+
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
-			DIN => mux_PC, -- saida MUX_BRANCH 
+			DIN => proxPC, -- saida MUX_PC 
 			DOUT => PC_out,
 			ENABLE => '1',
 			CLK => CLK,
@@ -97,7 +121,7 @@ BEGIN
 		PORT MAP(
 			entradaA_MUX => ROM_instru(20 DOWNTO 16), -- Rt
 			entradaB_MUX => ROM_instru(15 DOWNTO 11), -- Rd
-			seletor_MUX => UC_MUX_INSTR, -- seletor de instrucao R/I (unidade de controle)
+			seletor_MUX => UC_MUX_RT_RD, -- seletor de instrucao R/I (unidade de controle)
 			saida_MUX => MUX_REG -- enderecoC banco de registradores
 		);
 
@@ -108,7 +132,7 @@ BEGIN
 			enderecoA => ROM_instru(25 DOWNTO 21),
 			enderecoB => ROM_instru(20 DOWNTO 16),
 			enderecoC => MUX_REG,
-			escreveC => WR_Banco,
+			escreveC => UC_WE_REG,
 			dadoEscritaC => Saida_Mux_R3,
 			saidaA => entradaAULA,
 			saidaB => dadoLidoR2
@@ -127,6 +151,23 @@ BEGIN
 		PORT MAP(
 			input => saidaEstendeSinal,
 			output => leftShift_Somador-- somador
+		);
+	LEFT_SHIFT_PC : ENTITY work.shift_left
+		GENERIC MAP(larguraDados => 26)
+		PORT MAP(
+			input => ROM_instru(25 DOWNTO 0),
+			output => leftShift_PC
+		);
+
+	MUX_PROX_PC : ENTITY work.muxGenerico2x1
+		GENERIC MAP(larguraDados => 32)
+		PORT MAP(
+			entradaA_MUX => mux_PC,
+			entradaB_MUX(31 DOWNTO 28) => saidaSOM(31 DOWNTO 28),
+			entradaB_MUX(27 DOWNTO 2) => leftShift_PC(25 DOWNTO 0),
+			entradaB_MUX(1 DOWNTO 0) => b"00",
+			seletor_MUX => UC_MUX_BEQ,
+			saida_MUX => proxPC
 		);
 
 	-- somador
@@ -203,21 +244,85 @@ BEGIN
 			seletor_MUX => UC_MUX_ULAMEM, -- seletor ULA/MEMORIA (unidade de controle)
 			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
 		);
+
 	-- unidade de controle
 	UC : ENTITY work.FD_UC
 		PORT MAP(
 			op_code => ROM_instru(31 DOWNTO 26),
 			sinais_CTRL => sinaisControle
 		);
+		
+	
+	
+	
+MUX_OUTPUT: ENTITY work.muxGenerico2x1
+		GENERIC MAP(larguraDados => 32)
+		PORT MAP(
+			entradaA_MUX => PC_out, -- 
+			entradaB_MUX => Saida_ULA, --  
+			seletor_MUX => SW(0), --  
+			saida_MUX => DATA_OUT --  
+		);
+	
+	
+HEX0_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(3 downto 0),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX0
+	); 
+		 
+	
+HEX1_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(7 downto 4),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX1
+	);
 
-	UC_WRITE_ENABLE <= sinaisControle(0);
-	UC_READ_ENABLE <= sinaisControle(1);
-	UC_BEQ <= sinaisControle(2);
-	UC_MUX_ULAMEM <= sinaisControle(3);
-	UC_OP_ULA <= sinaisControle(5 DOWNTO 4);
-	UC_MUX_RT_IMED <= sinaisControle(6);
-	UC_WE_REG <= sinaisControle(7);
-	UC_MUX_RT_RD <= sinaisControle(8);
-	UC_MUX_BEQ <= sinaisControle(9);
+HEX2_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(11 downto 8),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX2
+	);
+
+HEX3_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(15 downto 12),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX3
+	);
+
+HEX4_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(19 downto 16),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX4
+	);
+
+HEX5_DECODER:
+	entity work.d7segHex
+	port map (
+		DATA_IN 	=> DATA_OUT(23 downto 20),
+		ENABLE	=> '1',
+		CLK		=> CLK,
+		DATA_OUT	=> HEX5
+	);
+
+LEDR(3 downto 0) <= DATA_OUT(27 downto 24);
+LEDR(7 downto 4) <= DATA_OUT(31 downto 28);
+		
+		
 
 END ARCHITECTURE;
