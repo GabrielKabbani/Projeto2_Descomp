@@ -51,10 +51,10 @@ BEGIN
 	MUX_SAIDA : ENTITY work.muxGenerico4x1
 		GENERIC MAP(larguraDados => 1)
 		PORT MAP(
-			E0(0) => S0,
-			E1(0) => S1,
-			E2(0) => S2,
-			E3(0) => S3,
+			E0(0) => S0, -- sel = 00
+			E1(0) => S1, -- sel = 01
+			E2(0) => S2, -- sel = 10
+			E3(0) => S3, -- sel = 11
 			SEL_MUX => sel,
 			MUX_OUT(0) => S
 		);

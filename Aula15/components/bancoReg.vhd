@@ -30,18 +30,18 @@ ARCHITECTURE comportamento OF bancoReg IS
     SUBTYPE palavra_t IS STD_LOGIC_VECTOR((larguraDados - 1) DOWNTO 0);
     TYPE memoria_t IS ARRAY(2 ** larguraEndBancoRegs - 1 DOWNTO 0) OF palavra_t;
 
-	function initMemory
-	  return memoria_t is variable tmp : memoria_t := (others => (others => '0'));
-	begin
-	  -- Inicializa os endereços:
-	  tmp(8)  := 32x"00";  -- $t0 = 0x00
-	  tmp(9)  := 32x"0A";  -- $t1 = 0x0A
-	  tmp(10) := 32x"0B";  -- $t2 = 0x0B
-	  tmp(11) := 32x"0C";  -- $t3 = 0x0C
-	  tmp(12) := 32x"0D";  -- $t4 = 0x0D
-	  tmp(13) := 32x"16";  -- $t5 = 0x16
-	  return tmp;
-	end initMemory;
+    FUNCTION initMemory
+        RETURN memoria_t IS VARIABLE tmp : memoria_t := (OTHERS => (OTHERS => '0'));
+    BEGIN
+        -- Inicializa os endereços:
+        tmp(8) := 32x"00"; -- $t0 = 0x00
+        tmp(9) := 32x"0A"; -- $t1 = 0x0A
+        tmp(10) := 32x"0B"; -- $t2 = 0x0B
+        tmp(11) := 32x"0C"; -- $t3 = 0x0C
+        tmp(12) := 32x"0D"; -- $t4 = 0x0D
+        tmp(13) := 32x"16"; -- $t5 = 0x16
+        RETURN tmp;
+    END initMemory;
 
     -- Declaracao dos registradores:
     SHARED VARIABLE registrador : memoria_t := initMemory;

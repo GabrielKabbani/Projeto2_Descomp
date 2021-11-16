@@ -3,25 +3,25 @@ USE ieee.std_logic_1164.ALL;
 
 ENTITY Aula15 IS
 	GENERIC (
-		larguraDados 	: natural := 32;
-		larguraLeftPC 	: natural := 26;
-		larguraUm 		: natural := 1;
-		larguraCinco 	: natural := 5;
-		larguraSinais  : natural := 10;
-      simulacao 		: boolean := TRUE -- para gravar na placa, altere de TRUE para FALSE
+		larguraDados : NATURAL := 32;
+		larguraLeftPC : NATURAL := 26;
+		larguraUm : NATURAL := 1;
+		larguraCinco : NATURAL := 5;
+		larguraSinais : NATURAL := 10;
+		simulacao : BOOLEAN := TRUE -- para gravar na placa, altere de TRUE para FALSE
 	);
 	PORT (
 		CLOCK_50 : IN STD_LOGIC;
-		SW				: in	std_logic_vector 	(9 downto 0);
-		HEX0			: out std_logic_vector	(6 downto 0);
-		HEX1			: out std_logic_vector	(6 downto 0);
-		HEX2			: out std_logic_vector	(6 downto 0);
-		HEX3			: out std_logic_vector	(6 downto 0);
-		HEX4			: out std_logic_vector	(6 downto 0);
-		HEX5			: out std_logic_vector	(6 downto 0);
-		LEDR			: out std_logic_vector	(9 downto 0)
+		SW : IN STD_LOGIC_VECTOR (9 DOWNTO 0);
+		HEX0 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		HEX1 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		HEX2 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		HEX3 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		HEX4 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		HEX5 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
+		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0)
 	);
-	
+
 END ENTITY;
 ARCHITECTURE arquitetura OF Aula15 IS
 
@@ -42,18 +42,16 @@ ARCHITECTURE arquitetura OF Aula15 IS
 	SIGNAL OP_ULA : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL habEscritaR3 : STD_LOGIC;
 	SIGNAL MUX_REG : STD_LOGIC_VECTOR(larguraCinco - 1 DOWNTO 0);
-	signal proxPC					: std_logic_vector(larguraDados-1 downto 0);
-	signal DATA_OUT					: std_logic_vector(larguraDados-1 downto 0);
+	SIGNAL proxPC : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	SIGNAL DATA_OUT : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 
-	signal leftShift_PC	: std_logic_vector(larguraLeftPC-1 downto 0);
+	SIGNAL leftShift_PC : STD_LOGIC_VECTOR(larguraLeftPC - 1 DOWNTO 0);
 	SIGNAL branchEqual : STD_LOGIC;
 	SIGNAL ULA_flipflop : STD_LOGIC;
 
 	SIGNAL Saida_Mux_R3 : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 
 	SIGNAL enable_branchEqual : STD_LOGIC;
-	
-	
 	-- sinais de controle (unidade de controle)
 	SIGNAL sinaisControle : STD_LOGIC_VECTOR(larguraSinais - 1 DOWNTO 0);
 	SIGNAL UC_WRITE_ENABLE : STD_LOGIC;
@@ -76,7 +74,7 @@ BEGIN
 	-- clock configurando como borda de subida
 	CLK <= CLOCK_50;
 	-- INSTR <= ROM_instru;
-	
+
 	UC_WRITE_ENABLE <= sinaisControle(0);
 	UC_READ_ENABLE <= sinaisControle(1);
 	UC_BEQ <= sinaisControle(2);
@@ -86,8 +84,6 @@ BEGIN
 	UC_WE_REG <= sinaisControle(7);
 	UC_MUX_RT_RD <= sinaisControle(8);
 	UC_MUX_BEQ <= sinaisControle(9);
-
-	
 
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
@@ -196,14 +192,6 @@ BEGIN
 			seletor_MUX => UC_MUX_RT_IMED, -- seletedor Rt/Imediato (unidade de controle)
 			saida_MUX => ULA_B -- entrada B da ULA
 		);
-
-	UC_ULA : ENTITY work.ULA_UC
-		PORT MAP(
-			ULA_OP => UC_OP_ULA,
-			funct => ROM_instru(5 DOWNTO 0),
-			ULA_CTRL => UC_ULA_CTRL
-		);
-
 	ULA : ENTITY work.ULA_MIPS
 		GENERIC MAP(larguraDados => larguraDados)
 		PORT MAP(
@@ -245,17 +233,21 @@ BEGIN
 			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
 		);
 
+	UC_ULA : ENTITY work.ULA_UC
+		PORT MAP(
+			ULA_OP => UC_OP_ULA,
+			funct => ROM_instru(5 DOWNTO 0),
+			ULA_CTRL => UC_ULA_CTRL
+		);
+
 	-- unidade de controle
 	UC : ENTITY work.FD_UC
 		PORT MAP(
 			op_code => ROM_instru(31 DOWNTO 26),
 			sinais_CTRL => sinaisControle
 		);
-		
-	
-	
-	
-MUX_OUTPUT: ENTITY work.muxGenerico2x1
+
+	MUX_OUTPUT : ENTITY work.muxGenerico2x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
 			entradaA_MUX => PC_out, -- 
@@ -263,66 +255,62 @@ MUX_OUTPUT: ENTITY work.muxGenerico2x1
 			seletor_MUX => SW(0), --  
 			saida_MUX => DATA_OUT --  
 		);
-	
-	
-HEX0_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(3 downto 0),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX0
-	); 
-		 
-	
-HEX1_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(7 downto 4),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX1
-	);
 
-HEX2_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(11 downto 8),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX2
-	);
+	HEX0_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(3 DOWNTO 0),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX0
+		);
 
-HEX3_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(15 downto 12),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX3
-	);
+	HEX1_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(7 DOWNTO 4),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX1
+		);
 
-HEX4_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(19 downto 16),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX4
-	);
+	HEX2_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(11 DOWNTO 8),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX2
+		);
 
-HEX5_DECODER:
-	entity work.d7segHex
-	port map (
-		DATA_IN 	=> DATA_OUT(23 downto 20),
-		ENABLE	=> '1',
-		CLK		=> CLK,
-		DATA_OUT	=> HEX5
-	);
+	HEX3_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(15 DOWNTO 12),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX3
+		);
 
-LEDR(3 downto 0) <= DATA_OUT(27 downto 24);
-LEDR(7 downto 4) <= DATA_OUT(31 downto 28);
-		
-		
+	HEX4_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(19 DOWNTO 16),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX4
+		);
+
+	HEX5_DECODER : ENTITY work.conversorHex7Seg
+		PORT MAP(
+			dadoHex => DATA_OUT(23 DOWNTO 20),
+			apaga => '0',
+			negativo => '0',
+			overFlow => '0',
+			saida7seg => HEX5
+		);
+
+	LEDR(3 DOWNTO 0) <= DATA_OUT(27 DOWNTO 24);
+	LEDR(7 DOWNTO 4) <= DATA_OUT(31 DOWNTO 28);
 
 END ARCHITECTURE;
