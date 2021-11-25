@@ -19,7 +19,11 @@ ENTITY Aula15 IS
 		HEX3 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		HEX4 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		HEX5 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
-		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0)
+		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
+		debug_ula: OUT STD_LOGIC_VECTOR (larguraDados - 1 downto 0);
+		debug_pc: out STD_LOGIC_VECTOR (larguraDados - 1 downto 0);
+		debug_uc_beq : out STD_LOGIC;
+		debug_beq: out STD_LOGIC
 	);
 
 END ENTITY;
@@ -84,7 +88,13 @@ BEGIN
 	UC_WE_REG <= sinaisControle(7);
 	UC_MUX_RT_RD <= sinaisControle(8);
 	UC_MUX_BEQ <= sinaisControle(9);
-
+	
+	
+	debug_ula <= Saida_ULA;
+	debug_pc <= PC_out;
+	debug_beq <= branchEqual;
+	debug_uc_beq <= UC_BEQ;
+	
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
@@ -192,6 +202,7 @@ BEGIN
 			seletor_MUX => UC_MUX_RT_IMED, -- seletedor Rt/Imediato (unidade de controle)
 			saida_MUX => ULA_B -- entrada B da ULA
 		);
+
 	ULA : ENTITY work.ULA_MIPS
 		GENERIC MAP(larguraDados => larguraDados)
 		PORT MAP(
@@ -202,14 +213,7 @@ BEGIN
 			flag_zero => ULA_flipflop
 		);
 
-	FLAG_EQ : ENTITY work.flipflopGenerico
-		PORT MAP(
-			ENABLE => UC_BEQ, -- sinal de controle
-			RST => '0',
-			CLK => CLK,
-			DIN => ULA_flipflop, -- flag_zero ULA
-			DOUT => branchEqual-- seletor MUX_BRANCH
-		);
+	branchEqual <= ULA_flipflop and UC_BEQ;
 
 	-- memoria dados
 	MEMORIA_DADOS : ENTITY work.RAMMIPS
