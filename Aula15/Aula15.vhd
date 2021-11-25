@@ -46,8 +46,13 @@ ARCHITECTURE arquitetura OF Aula15 IS
 	SIGNAL OP_ULA : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL habEscritaR3 : STD_LOGIC;
 	SIGNAL MUX_REG : STD_LOGIC_VECTOR(larguraCinco - 1 DOWNTO 0);
+<<<<<<< HEAD
 	SIGNAL proxPC : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 	SIGNAL DATA_OUT : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+=======
+	SIGNAL proxPC	: STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	signal leftShift_PC	: std_logic_vector(larguraLeftPC-1 downto 0);
+>>>>>>> 75ea22e34355c124b2735dfb3c9e34c717f59545
 
 	SIGNAL leftShift_PC : STD_LOGIC_VECTOR(larguraLeftPC - 1 DOWNTO 0);
 	SIGNAL branchEqual : STD_LOGIC;
@@ -77,6 +82,7 @@ BEGIN
 
 	-- clock configurando como borda de subida
 	CLK <= CLOCK_50;
+<<<<<<< HEAD
 	-- INSTR <= ROM_instru;
 
 	UC_WRITE_ENABLE <= sinaisControle(0);
@@ -95,6 +101,10 @@ BEGIN
 	debug_beq <= branchEqual;
 	debug_uc_beq <= UC_BEQ;
 	
+=======
+	INSTR <= ROM_instru;
+
+>>>>>>> 75ea22e34355c124b2735dfb3c9e34c717f59545
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
@@ -176,6 +186,24 @@ BEGIN
 			saida_MUX => proxPC
 		);
 
+	LEFT_SHIFT_PC : ENTITY work.shift_left
+		GENERIC MAP(larguraDados => 26)
+		PORT MAP(
+			input => ROM_instru(25 DOWNTO 0),
+			output => leftShift_PC
+		);
+
+	MUX_PROX_PC : ENTITY work.muxGenerico2x1
+		GENERIC MAP(larguraDados => 32)
+		PORT MAP(
+			entradaA_MUX => mux_PC,
+			entradaB_MUX(31 DOWNTO 28) => saidaSOM(31 DOWNTO 28),
+			entradaB_MUX(27 DOWNTO 2) => leftShift_PC(25 DOWNTO 0),
+			entradaB_MUX(1 DOWNTO 0) => b"00",
+			seletor_MUX => UC_MUX_BEQ,
+			saida_MUX => proxPC
+		);
+
 	-- somador
 	SOMA_DESVIO : ENTITY work.somadorGenerico
 		GENERIC MAP(larguraDados => 32)
@@ -184,6 +212,7 @@ BEGIN
 			entradaB => leftShift_Somador, --
 			saida => somador_muxBranch
 		);
+
 	MUX_BRANCH : ENTITY work.muxGenerico2x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
