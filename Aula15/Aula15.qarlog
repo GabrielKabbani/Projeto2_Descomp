@@ -1,0 +1,39 @@
+Quartus Prime Archive log --	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Aula15.qarlog
+
+Archive:	C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Aula15.qar
+Date:		Mon Nov 15 23:44:17 2021
+Quartus Prime		20.1.0 Build 711 06/05/2020 SJ Lite Edition
+
+	=========== Files Selected: ===========
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Aula15.qpf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Aula15.qsf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Aula15.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/FD_UC.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/ULA_MIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/ULA_UC.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/Waveform.vwf
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/RAMMIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/ROMMIPS.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/ULASomaSub.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/ULA_bit.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/ULA_bit_overflow.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/bancoReg.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/bancoRegistradores.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/conversorHex7Seg.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/d7segHex.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/estendeSinalGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/flipflopGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/fullAdder.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/muxGenerico2x1.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/muxGenerico4x1.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/registradorGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/shift_left.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/somaConstante.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/somadorGenerico.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/components/unidadeDeControle.vhd
+C:/Users/elm_t/Documents/grad/descomp/projeto2/Aula15/constants.vhd
+c:/intelfpga_lite/20.1/quartus/bin64/assignment_defaults.qdf
+	======= Total: 28 files to archive =======
+
+	================ Status: ===============
+All files archived successfully.

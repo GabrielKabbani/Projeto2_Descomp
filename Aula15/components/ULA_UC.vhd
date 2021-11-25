@@ -27,9 +27,10 @@ BEGIN
 		CTRL_SUB WHEN funct = OP_SUB ELSE
 		CTRL_SLT; -- WHEN funct = OP_SLT;
 
-	ctrl_LW_SW <= CTRL_ADD WHEN ULA_OP = "00";
-	ctrlBEQ <= CTRL_SUB WHEN ULA_OP = "01";
-
+	ctrl_LW_SW <= CTRL_ADD; -- ULA_OP = "00"
+	
+	ctrlBEQ <= CTRL_SUB; -- ULA_OP = "01";
+	
 	ULA_CTRL <= tipoR WHEN ULA_OP = "10" ELSE
 		ctrl_LW_SW WHEN ULA_OP = "00" ELSE
 		ctrlBEQ; -- possível bug
