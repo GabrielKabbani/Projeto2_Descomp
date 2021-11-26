@@ -1,7 +1,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
-ENTITY Aula15 IS
+ENTITY MIPS_Pipeline IS
 	GENERIC (
 		larguraDados : NATURAL := 32;
 		larguraLeftPC : NATURAL := 26;
@@ -27,7 +27,7 @@ ENTITY Aula15 IS
 	);
 
 END ENTITY;
-ARCHITECTURE arquitetura OF Aula15 IS
+ARCHITECTURE arquitetura OF MIPS_Pipeline IS
 
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL saidaSOM : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
