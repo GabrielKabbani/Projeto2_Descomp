@@ -48,12 +48,17 @@ ARCHITECTURE arquitetura OF MIPS_Pipeline IS
 	SIGNAL MUX_REG : STD_LOGIC_VECTOR(larguraCinco - 1 DOWNTO 0);
 	SIGNAL proxPC : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 	SIGNAL DATA_OUT : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
-
+	SIGNAL saida_mux_flag_zero : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	
 	SIGNAL leftShift_PC : STD_LOGIC_VECTOR(larguraLeftPC - 1 DOWNTO 0);
 	SIGNAL branchEqual : STD_LOGIC;
 	SIGNAL ULA_flipflop : STD_LOGIC;
 
 	SIGNAL Saida_Mux_R3 : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	SIGNAL LUI_OUT : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	
+	SIGNAL MUX_PC_AB: STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
+	
 
 	SIGNAL enable_branchEqual : STD_LOGIC;
 	-- sinais de controle (unidade de controle)
@@ -61,6 +66,7 @@ ARCHITECTURE arquitetura OF MIPS_Pipeline IS
 	SIGNAL UC_WRITE_ENABLE : STD_LOGIC;
 	SIGNAL UC_READ_ENABLE : STD_LOGIC;
 	SIGNAL UC_BEQ : STD_LOGIC;
+	SIGNAL UC_BNE : STD_LOGIC;
 	SIGNAL UC_MUX_ULAMEM : STD_LOGIC;
 	SIGNAL UC_MUX_INSTR : STD_LOGIC;
 	SIGNAL UC_OP_ULA : STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -68,6 +74,7 @@ ARCHITECTURE arquitetura OF MIPS_Pipeline IS
 	SIGNAL UC_WE_REG : STD_LOGIC;
 	SIGNAL UC_MUX_RT_RD : STD_LOGIC;
 	SIGNAL UC_MUX_BEQ : STD_LOGIC;
+	SIGNAL UC_JR : STD_LOGIC;
 
 	SIGNAL UC_ULA_CTRL : STD_LOGIC_VECTOR(2 DOWNTO 0);
 
@@ -82,9 +89,10 @@ BEGIN
 	UC_WRITE_ENABLE <= sinaisControle(0);
 	UC_READ_ENABLE <= sinaisControle(1);
 	UC_BEQ <= sinaisControle(2);
-	UC_MUX_ULAMEM <= sinaisControle(3);
+	UC_BNE <= -- sinais de controle (??);
+	UC_MUX_ULAMEM <= sinaisControle(3);        -- largura 2
 	UC_OP_ULA <= sinaisControle(5 DOWNTO 4);
-	UC_MUX_RT_IMED <= sinaisControle(6);
+	UC_MUX_RT_IMED <= sinaisControle(6);		 -- largura 2
 	UC_WE_REG <= sinaisControle(7);
 	UC_MUX_RT_RD <= sinaisControle(8);
 	UC_MUX_BEQ <= sinaisControle(9);
@@ -94,6 +102,12 @@ BEGIN
 	debug_pc <= PC_out;
 	debug_beq <= branchEqual;
 	debug_uc_beq <= UC_BEQ;
+	
+	
+	
+	
+	
+	
 	
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
@@ -122,13 +136,15 @@ BEGIN
 		);
 
 	-- mux que seleciona a intrucao tipo R ou tipo I
-	MUX_INSTRUCOES : ENTITY work.muxGenerico2x1
+	MUX_INSTRUCOES : ENTITY work.muxGenerico4x1
 		GENERIC MAP(larguraDados => 5)
 		PORT MAP(
-			entradaA_MUX => ROM_instru(20 DOWNTO 16), -- Rt
-			entradaB_MUX => ROM_instru(15 DOWNTO 11), -- Rd
-			seletor_MUX => UC_MUX_RT_RD, -- seletor de instrucao R/I (unidade de controle)
-			saida_MUX => MUX_REG -- enderecoC banco de registradores
+			E0 => ROM_instru(20 DOWNTO 16), 
+			E1 => ROM_instru(15 DOWNTO 11), 
+			E2 => "?????", 
+			E3 => "00000",
+			SEL_MUX => UC_MUX_RT_RD, -- seletor de instrucao R/I (unidade de controle) -- largura 2
+			MUX_OUT => MUX_REG -- enderecoC banco de registradores
 		);
 
 	Banco_Registradores : ENTITY work.bancoReg
@@ -151,6 +167,12 @@ BEGIN
 			estendeSinal_IN => ROM_instru(15 DOWNTO 0),
 			estendeSinal_OUT => saidaEstendeSinal
 		);
+		
+	LUI_COMPONENTE : ENTITY work.LUI
+		PORT MAP (
+			input  => ROM_instru(15 downto 0),
+			output => LUI_OUT-- mux ram-registradores -- largura 32
+		);
 
 	LEFT_SHIFT : ENTITY work.shift_left
 		GENERIC MAP(larguraDados => 32)
@@ -158,6 +180,7 @@ BEGIN
 			input => saidaEstendeSinal,
 			output => leftShift_Somador-- somador
 		);
+
 	LEFT_SHIFT_PC : ENTITY work.shift_left
 		GENERIC MAP(larguraDados => 26)
 		PORT MAP(
@@ -165,7 +188,7 @@ BEGIN
 			output => leftShift_PC
 		);
 
-	MUX_PROX_PC : ENTITY work.muxGenerico2x1
+	MUX_PROX_PC_A : ENTITY work.muxGenerico2x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
 			entradaA_MUX => mux_PC,
@@ -173,7 +196,16 @@ BEGIN
 			entradaB_MUX(27 DOWNTO 2) => leftShift_PC(25 DOWNTO 0),
 			entradaB_MUX(1 DOWNTO 0) => b"00",
 			seletor_MUX => UC_MUX_BEQ,
-			saida_MUX => proxPC
+			saida_MUX => MUX_PC_AB-- mux prox pc b
+		);
+		
+	MUX_PROX_PC_B : ENTITY work.muxGenerico2x1
+		GENERIC MAP(larguraDados => 32)
+		PORT MAP(
+			entradaA_MUX => MUX_PC_AB,  -- mux prox pc a,
+			entradaB_MUX => entradaAULA, -- dado lido 1,
+			seletor_MUX  => UC_JR -- JR unidade de controle,
+			saida_MUX    => proxPC
 		);
 
 	-- somador
@@ -214,7 +246,16 @@ BEGIN
 			flag_zero => ULA_flipflop
 		);
 
-	branchEqual <= ULA_flipflop and UC_BEQ;
+	MUX_FLAG_ZERO: entity work.muxGenerico2x1
+		generic map()
+		port map(
+			entradaA_MUX => not(ULA_flipflop), -- 
+			entradaB_MUX => ULA_flipflop, --  
+			seletor_MUX => UC_BEQ, --  
+			saida_MUX => saida_mux_flag_zero --  
+		);
+
+	branchEqual <= saida_mux_flag_zero and (UC_BEQ or UC_BNE);
 
 	-- memoria dados
 	MEMORIA_DADOS : ENTITY work.RAMMIPS
@@ -229,19 +270,22 @@ BEGIN
 		);
 
 	--mux que seleciona a entrada de R3
-	MUX_R3 : ENTITY work.muxGenerico2x1
+	MUX_R3 : ENTITY work.muxGenerico4x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
-			entradaA_MUX => Saida_ULA, -- saida ULA
-			entradaB_MUX => saidaMemDados, -- saida memoria de dados
-			seletor_MUX => UC_MUX_ULAMEM, -- seletor ULA/MEMORIA (unidade de controle)
-			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
+			E0 => Saida_ULA, 
+			E1 => saidaMemDados, 
+			E2 => saidaSOM,-- saida somaConstante PC, 
+			E3 => LUI_OUT, -- saida LUI,
+			SEL_MUX => UC_MUX_ULAMEM, -- largura 2
+			MUX_OUT => Saida_Mux_R3,
 		);
 
 	UC_ULA : ENTITY work.ULA_UC
 		PORT MAP(
 			ULA_OP => UC_OP_ULA,
 			funct => ROM_instru(5 DOWNTO 0),
+			opcode => ROM_instru(31 downto 26),
 			ULA_CTRL => UC_ULA_CTRL
 		);
 
