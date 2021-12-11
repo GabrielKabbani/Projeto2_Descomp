@@ -21,8 +21,9 @@ ARCHITECTURE comportamento OF ULA_MIPS IS
 
 BEGIN
 
-	inv_B <= operacao(2);
 	seletor <= operacao(1 DOWNTO 0);
+	inv_B <= operacao(2);
+
 	flag_zero <=
 		NOT(saida(0)) AND NOT(saida(1)) AND NOT(saida(2)) AND NOT(saida(3)) AND
 		NOT(saida(4)) AND NOT(saida(5)) AND NOT(saida(6)) AND NOT(saida(7)) AND
