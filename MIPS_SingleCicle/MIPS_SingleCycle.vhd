@@ -22,8 +22,12 @@ ENTITY MIPS_SingleCycle IS
 		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
 		debug_ula : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
 		debug_pc : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+		debug_ula_A : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+		debug_ula_B : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
 		debug_uc_beq : OUT STD_LOGIC;
-		debug_beq : OUT STD_LOGIC
+		debug_ula_ctrl : out std_logic_vector(2 downto 0);
+		debug_uc_mux : out std_logic_vector(1 downto 0);
+		debug_beq : OUT STD_LOGIC 
 	);
 
 END ENTITY;
@@ -96,7 +100,12 @@ BEGIN
 	debug_pc <= PC_out;
 	debug_beq <= branchEqual;
 	debug_uc_beq <= UC_BEQ;
-
+	debug_ula_ctrl <= UC_ULA_CTRL;
+	debug_uc_mux <= UC_MUX_ULAMEM;
+	debug_ula_A <= entradaAULA;
+	debug_ula_B <= ULA_B;
+	
+	
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(

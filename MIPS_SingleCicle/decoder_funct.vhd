@@ -18,7 +18,7 @@ BEGIN
 
   decoder_out <=
     CTRL_AND WHEN funct = OP_AND ELSE
-    CTRL_OR WHEN funct = OP_OR OR funct = OP_ORI ELSE
+    CTRL_OR WHEN funct = OP_OR ELSE
     CTRL_ADD WHEN funct = OP_ADD ELSE
     CTRL_SUB WHEN funct = OP_SUB ELSE
     CTRL_SLT;

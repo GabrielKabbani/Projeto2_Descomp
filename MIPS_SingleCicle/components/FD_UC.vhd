@@ -35,17 +35,19 @@ BEGIN
   BEQ <= '1' WHEN op_code = OP_BEQ ELSE
     '0';
 
-  MUX_ULA_MEM <= "00" WHEN op_code = OP_CODE_R ELSE
-    "01" WHEN op_code = OP_LW ELSE
-    "11";
+  MUX_ULA_MEM <= 
+	 "00" WHEN op_code = OP_CODE_R ELSE
+    "00" when op_code = OP_ORI ELSE
+	 "01" WHEN op_code = OP_LW ELSE 
+	 "11" when op_code = OP_LUI else
+	 "10";
 
   OP_ULA <= '1' WHEN op_code = OP_CODE_R ELSE
     '0';
 
-  MUX_Rt_Imediato <= '1' WHEN (op_code = OP_LW) OR (op_code = OP_SW) ELSE
-    '0';
+  MUX_Rt_Imediato <= '1' WHEN (op_code = OP_LW) OR (op_code = OP_SW) OR (op_code = OP_ORI) ELSE '0';
 
-  WE_Reg <= '1' WHEN (op_code = OP_LW) OR (op_code = OP_CODE_R) OR (op_code = OP_LUI) ELSE
+  WE_Reg <= '1' WHEN (op_code = OP_LW) OR (op_code = OP_CODE_R) OR (op_code = OP_LUI) OR (op_code = OP_ORI) ELSE
     '0';
 
   signal_ORI <= '1' WHEN op_code = OP_ORI ELSE
