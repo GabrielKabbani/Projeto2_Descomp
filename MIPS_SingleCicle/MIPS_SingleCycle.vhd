@@ -1,13 +1,13 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
-ENTITY MIPS_SingleCicle IS
+ENTITY MIPS_SingleCycle IS
 	GENERIC (
 		larguraDados : NATURAL := 32;
 		larguraLeftPC : NATURAL := 26;
 		larguraUm : NATURAL := 1;
 		larguraCinco : NATURAL := 5;
-		larguraSinais : NATURAL := 10;
+		larguraSinais : NATURAL := 12;
 		simulacao : BOOLEAN := TRUE -- para gravar na placa, altere de TRUE para FALSE
 	);
 	PORT (
@@ -20,14 +20,14 @@ ENTITY MIPS_SingleCicle IS
 		HEX4 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		HEX5 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
-		debug_ula: OUT STD_LOGIC_VECTOR (larguraDados - 1 downto 0);
-		debug_pc: out STD_LOGIC_VECTOR (larguraDados - 1 downto 0);
-		debug_uc_beq : out STD_LOGIC;
-		debug_beq: out STD_LOGIC
+		debug_ula : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+		debug_pc : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+		debug_uc_beq : OUT STD_LOGIC;
+		debug_beq : OUT STD_LOGIC
 	);
 
 END ENTITY;
-ARCHITECTURE arquitetura OF MIPS_SingleCicle IS
+ARCHITECTURE arquitetura OF MIPS_SingleCycle IS
 
 	SIGNAL CLK : STD_LOGIC;
 	SIGNAL saidaSOM : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
@@ -52,6 +52,7 @@ ARCHITECTURE arquitetura OF MIPS_SingleCicle IS
 	SIGNAL leftShift_PC : STD_LOGIC_VECTOR(larguraLeftPC - 1 DOWNTO 0);
 	SIGNAL branchEqual : STD_LOGIC;
 	SIGNAL ULA_flipflop : STD_LOGIC;
+	SIGNAL saida_LUI : STD_LOGIC_VECTOR(31 DOWNTO 0);
 
 	SIGNAL Saida_Mux_R3 : STD_LOGIC_VECTOR(larguraDados - 1 DOWNTO 0);
 
@@ -61,11 +62,12 @@ ARCHITECTURE arquitetura OF MIPS_SingleCicle IS
 	SIGNAL UC_WRITE_ENABLE : STD_LOGIC;
 	SIGNAL UC_READ_ENABLE : STD_LOGIC;
 	SIGNAL UC_BEQ : STD_LOGIC;
-	SIGNAL UC_MUX_ULAMEM : STD_LOGIC;
+	SIGNAL UC_MUX_ULAMEM : STD_LOGIC_VECTOR(1 DOWNTO 0);
 	SIGNAL UC_MUX_INSTR : STD_LOGIC;
 	SIGNAL UC_OP_ULA : STD_LOGIC_VECTOR(1 DOWNTO 0);
 	SIGNAL UC_MUX_RT_IMED : STD_LOGIC;
 	SIGNAL UC_WE_REG : STD_LOGIC;
+	SIGNAL UC_ORI : STD_LOGIC;
 	SIGNAL UC_MUX_RT_RD : STD_LOGIC;
 	SIGNAL UC_MUX_BEQ : STD_LOGIC;
 
@@ -82,19 +84,18 @@ BEGIN
 	UC_WRITE_ENABLE <= sinaisControle(0);
 	UC_READ_ENABLE <= sinaisControle(1);
 	UC_BEQ <= sinaisControle(2);
-	UC_MUX_ULAMEM <= sinaisControle(3);
-	UC_OP_ULA <= sinaisControle(5 DOWNTO 4);
-	UC_MUX_RT_IMED <= sinaisControle(6);
-	UC_WE_REG <= sinaisControle(7);
-	UC_MUX_RT_RD <= sinaisControle(8);
-	UC_MUX_BEQ <= sinaisControle(9);
-	
-	
+	UC_MUX_ULAMEM <= sinaisControle(4 DOWNTO 3);
+	UC_OP_ULA <= sinaisControle(6 DOWNTO 5);
+	UC_MUX_RT_IMED <= sinaisControle(7);
+	UC_WE_REG <= sinaisControle(8);
+	UC_ORI <= sinaisControle(9);
+	UC_MUX_RT_RD <= sinaisControle(10);
+	UC_MUX_BEQ <= sinaisControle(11);
 	debug_ula <= Saida_ULA;
 	debug_pc <= PC_out;
 	debug_beq <= branchEqual;
 	debug_uc_beq <= UC_BEQ;
-	
+
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
@@ -149,7 +150,14 @@ BEGIN
 		GENERIC MAP(larguraDadoEntrada => 16, larguraDadoSaida => 32)
 		PORT MAP(
 			estendeSinal_IN => ROM_instru(15 DOWNTO 0),
+			controle => UC_ORI,
 			estendeSinal_OUT => saidaEstendeSinal
+		);
+
+	lui_comp : ENTITY work.LUI
+		PORT MAP(
+			input => ROM_instru(15 DOWNTO 0),
+			output => saida_LUI -- 32 bits
 		);
 
 	LEFT_SHIFT : ENTITY work.shift_left
@@ -213,7 +221,7 @@ BEGIN
 			flag_zero => ULA_flipflop
 		);
 
-	branchEqual <= ULA_flipflop and UC_BEQ;
+	branchEqual <= ULA_flipflop AND UC_BEQ;
 
 	-- memoria dados
 	MEMORIA_DADOS : ENTITY work.RAMMIPS
@@ -227,14 +235,25 @@ BEGIN
 			re => UC_READ_ENABLE
 		);
 
-	--mux que seleciona a entrada de R3
-	MUX_R3 : ENTITY work.muxGenerico2x1
+	--	--mux que seleciona a entrada de R3
+	--	MUX_R3 : ENTITY work.muxGenerico2x1
+	--		GENERIC MAP(larguraDados => 32)
+	--		PORT MAP(
+	--			entradaA_MUX => Saida_ULA, -- saida ULA
+	--			entradaB_MUX => saidaMemDados, -- saida memoria de dados
+	--			seletor_MUX => UC_MUX_ULAMEM, -- seletor ULA/MEMORIA (unidade de controle)
+	--			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
+	--		);
+
+	MUX_R3 : ENTITY work.muxGenerico4x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
-			entradaA_MUX => Saida_ULA, -- saida ULA
-			entradaB_MUX => saidaMemDados, -- saida memoria de dados
-			seletor_MUX => UC_MUX_ULAMEM, -- seletor ULA/MEMORIA (unidade de controle)
-			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
+			E0 => Saida_ULA,
+			E1 => saidaMemDados,
+			E2 => 32x"0",
+			E3 => saida_LUI,
+			SEL_MUX => UC_MUX_ULAMEM,
+			MUX_OUT => Saida_Mux_R3
 		);
 
 	UC_ULA : ENTITY work.ULA_UC
