@@ -19,15 +19,16 @@ ENTITY MIPS_SingleCycle IS
 		HEX3 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		HEX4 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
 		HEX5 : OUT STD_LOGIC_VECTOR (6 DOWNTO 0);
-		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0);
-		debug_ula : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
-		debug_pc : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
-		debug_ula_A : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
-		debug_ula_B : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
-		debug_uc_beq : OUT STD_LOGIC;
-		debug_ula_ctrl : out std_logic_vector(2 downto 0);
-		debug_uc_mux : out std_logic_vector(1 downto 0);
-		debug_beq : OUT STD_LOGIC 
+		KEY  : in  std_logic_vector	(3 downto 0);
+		LEDR : OUT STD_LOGIC_VECTOR (9 DOWNTO 0)
+--		debug_ula : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+--		debug_pc : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+--		debug_ula_A : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+--		debug_ula_B : OUT STD_LOGIC_VECTOR (larguraDados - 1 DOWNTO 0);
+--		debug_uc_beq : OUT STD_LOGIC;
+--		debug_ula_ctrl : out std_logic_vector(2 downto 0);
+--		debug_uc_mux : out std_logic_vector(1 downto 0);
+--		debug_beq : OUT STD_LOGIC 
 	);
 
 END ENTITY;
@@ -82,7 +83,14 @@ BEGIN
 	-- Instanciando os componentes:
 
 	-- clock configurando como borda de subida
-	CLK <= CLOCK_50;
+	--	CLK <= CLOCK_50;
+	
+	detectorSub: work.edgeDetector(bordaSubida)
+		port map (
+			clk => CLOCK_50, 
+			entrada => (not KEY(0)), 
+			saida => CLK
+		);
 	-- INSTR <= ROM_instru;
 
 	UC_WRITE_ENABLE <= sinaisControle(0);
@@ -96,15 +104,15 @@ BEGIN
 	UC_MUX_RT_RD <= sinaisControle(9);
 	UC_MUX_BEQ <= sinaisControle(10);
 
-	debug_ula <= Saida_ULA;
-	debug_pc <= PC_out;
-	debug_beq <= branchEqual;
-	debug_uc_beq <= UC_BEQ;
-	debug_ula_ctrl <= UC_ULA_CTRL;
-	debug_uc_mux <= UC_MUX_ULAMEM;
-	debug_ula_A <= entradaAULA;
-	debug_ula_B <= ULA_B;
-	
+--	debug_ula <= Saida_ULA;
+--	debug_pc <= PC_out;
+--	debug_beq <= branchEqual;
+--	debug_uc_beq <= UC_BEQ;
+--	debug_ula_ctrl <= UC_ULA_CTRL;
+--	debug_uc_mux <= UC_MUX_ULAMEM;
+--	debug_ula_A <= entradaAULA;
+--	debug_ula_B <= ULA_B;
+--	
 	
 	PC : ENTITY work.registradorGenerico
 		GENERIC MAP(larguraDados => 32)
