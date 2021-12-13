@@ -17,16 +17,16 @@ END ENTITY;
 
 ARCHITECTURE comportamento OF estendeSinalGenerico IS
 BEGIN
---    PROCESS (estendeSinal_IN) IS
---    BEGIN
---        IF (estendeSinal_IN(larguraDadoEntrada - 1) = '1') THEN
---            estendeSinal_OUT <= (larguraDadoSaida - 1 DOWNTO larguraDadoEntrada => '1') & estendeSinal_IN;
---        ELSE
---            estendeSinal_OUT <= (larguraDadoSaida - 1 DOWNTO larguraDadoEntrada => '0') & estendeSinal_IN;
---        END IF;
---    END PROCESS;
- estendeSinal_OUT <=
-     (31 DOWNTO 16 => estendeSinal_IN(15)) & estendeSinal_IN WHEN controle = '0' ELSE
-     (31 DOWNTO 16 => '0') & estendeSinal_IN;
+    --    PROCESS (estendeSinal_IN) IS
+    --    BEGIN
+    --        IF (estendeSinal_IN(larguraDadoEntrada - 1) = '1') THEN
+    --            estendeSinal_OUT <= (larguraDadoSaida - 1 DOWNTO larguraDadoEntrada => '1') & estendeSinal_IN;
+    --        ELSE
+    --            estendeSinal_OUT <= (larguraDadoSaida - 1 DOWNTO larguraDadoEntrada => '0') & estendeSinal_IN;
+    --        END IF;
+    --    END PROCESS;
+    estendeSinal_OUT <=
+        (31 DOWNTO 16 => estendeSinal_IN(15)) & estendeSinal_IN WHEN controle = '0' ELSE
+        (31 DOWNTO 16 => '0') & estendeSinal_IN;
 
 END ARCHITECTURE;

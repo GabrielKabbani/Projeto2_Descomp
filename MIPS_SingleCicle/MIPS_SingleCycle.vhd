@@ -7,7 +7,7 @@ ENTITY MIPS_SingleCycle IS
 		larguraLeftPC : NATURAL := 26;
 		larguraUm : NATURAL := 1;
 		larguraCinco : NATURAL := 5;
-		larguraSinais : NATURAL := 12;
+		larguraSinais : NATURAL := 11;
 		simulacao : BOOLEAN := TRUE -- para gravar na placa, altere de TRUE para FALSE
 	);
 	PORT (
@@ -64,7 +64,7 @@ ARCHITECTURE arquitetura OF MIPS_SingleCycle IS
 	SIGNAL UC_BEQ : STD_LOGIC;
 	SIGNAL UC_MUX_ULAMEM : STD_LOGIC_VECTOR(1 DOWNTO 0);
 	SIGNAL UC_MUX_INSTR : STD_LOGIC;
-	SIGNAL UC_OP_ULA : STD_LOGIC_VECTOR(1 DOWNTO 0);
+	SIGNAL UC_OP_ULA : STD_LOGIC;
 	SIGNAL UC_MUX_RT_IMED : STD_LOGIC;
 	SIGNAL UC_WE_REG : STD_LOGIC;
 	SIGNAL UC_ORI : STD_LOGIC;
@@ -85,12 +85,13 @@ BEGIN
 	UC_READ_ENABLE <= sinaisControle(1);
 	UC_BEQ <= sinaisControle(2);
 	UC_MUX_ULAMEM <= sinaisControle(4 DOWNTO 3);
-	UC_OP_ULA <= sinaisControle(6 DOWNTO 5);
-	UC_MUX_RT_IMED <= sinaisControle(7);
-	UC_WE_REG <= sinaisControle(8);
-	UC_ORI <= sinaisControle(9);
-	UC_MUX_RT_RD <= sinaisControle(10);
-	UC_MUX_BEQ <= sinaisControle(11);
+	UC_OP_ULA <= sinaisControle(5);
+	UC_MUX_RT_IMED <= sinaisControle(6);
+	UC_WE_REG <= sinaisControle(7);
+	UC_ORI <= sinaisControle(8);
+	UC_MUX_RT_RD <= sinaisControle(9);
+	UC_MUX_BEQ <= sinaisControle(10);
+
 	debug_ula <= Saida_ULA;
 	debug_pc <= PC_out;
 	debug_beq <= branchEqual;
@@ -235,16 +236,6 @@ BEGIN
 			re => UC_READ_ENABLE
 		);
 
-	--	--mux que seleciona a entrada de R3
-	--	MUX_R3 : ENTITY work.muxGenerico2x1
-	--		GENERIC MAP(larguraDados => 32)
-	--		PORT MAP(
-	--			entradaA_MUX => Saida_ULA, -- saida ULA
-	--			entradaB_MUX => saidaMemDados, -- saida memoria de dados
-	--			seletor_MUX => UC_MUX_ULAMEM, -- seletor ULA/MEMORIA (unidade de controle)
-	--			saida_MUX => Saida_Mux_R3 -- Dado Lido R3
-	--		);
-
 	MUX_R3 : ENTITY work.muxGenerico4x1
 		GENERIC MAP(larguraDados => 32)
 		PORT MAP(
@@ -258,7 +249,8 @@ BEGIN
 
 	UC_ULA : ENTITY work.ULA_UC
 		PORT MAP(
-			ULA_OP => UC_OP_ULA,
+			tipoR => UC_OP_ULA,
+			opcode => ROM_instru(31 DOWNTO 26),
 			funct => ROM_instru(5 DOWNTO 0),
 			ULA_CTRL => UC_ULA_CTRL
 		);
